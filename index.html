@@ -40,8 +40,8 @@
   --ink: #0F172A;
   --muted: #64748B;
 
-  --glass-bg: rgba(15, 23, 42, 0.46);
-  --glass-border: rgba(255, 255, 255, 0.22);
+  --glass-bg: rgba(15, 23, 42, 0.94);
+  --glass-border: rgba(255, 255, 255, 0.14);
   --glass-shadow: 0 20px 60px rgba(15, 23, 42, 0.55);
 
   --radius-lg: 18px;
@@ -325,15 +325,15 @@ body {
 }
 
 .alert-box--error {
-  background: rgba(239, 68, 68, 0.16);
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  color: #FECACA;
+  background: #7F1D1D;
+  border: 1px solid rgba(248, 113, 113, 0.5);
+  color: #FEE2E2;
 }
 
 .alert-box--success {
-  background: rgba(16, 185, 129, 0.16);
-  border: 1px solid rgba(16, 185, 129, 0.4);
-  color: #A7F3D0;
+  background: #064E3B;
+  border: 1px solid rgba(52, 211, 153, 0.5);
+  color: #D1FAE5;
 }
 
 /* ---- Form ---- */
@@ -399,6 +399,19 @@ body {
 .custom-input:-webkit-autofill {
   -webkit-text-fill-color: #fff;
   transition: background-color 9999s ease-in-out 0s;
+}
+
+.custom-input:disabled,
+.custom-select:disabled {
+  color: rgba(255, 255, 255, 0.75) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.75) !important;
+  cursor: not-allowed;
+  opacity: 1 !important;
+}
+
+.input-shell:has(:disabled) {
+  background: rgba(255, 255, 255, 0.04);
+  opacity: 1;
 }
 
 .toggle-password {
@@ -648,18 +661,29 @@ body {
   align-items: flex-start;
   justify-content: center;
   padding: 32px 16px;
+  background:
+    radial-gradient(1100px 500px at 50% -10%, rgba(37, 99, 235, 0.10), transparent 60%),
+    linear-gradient(180deg, #F1F5F9 0%, #F8FAFC 55%, #FFFFFF 100%);
 }
 
-.pub-wrap { width: 100%; max-width: 560px; }
+.pub-wrap { width: 100%; max-width: 640px; }
 
 .pub-brand {
   text-align: center;
-  color: #fff;
+  color: var(--ink);
   margin-bottom: 22px;
 }
-.pub-brand i { font-size: 30px; margin-bottom: 8px; }
-.pub-brand h1 { font-size: 20px; font-weight: 700; margin: 6px 0 2px; }
-.pub-brand p { font-size: 13px; opacity: 0.82; margin: 0; }
+.pub-brand i { font-size: 30px; margin-bottom: 8px; color: var(--primary); }
+.pub-brand h1 { font-size: 20px; font-weight: 700; margin: 6px 0 2px; color: var(--ink); }
+.pub-brand p { font-size: 13px; color: var(--muted); margin: 0; }
+.pub-brand-banner {
+  max-width: 100%;
+  max-height: 130px;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  margin-bottom: 10px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+}
 
 .pub-card {
   background: #fff;
@@ -672,6 +696,52 @@ body {
 }
 .pub-card h2 { font-size: 16px; font-weight: 700; margin: 0 0 16px; color: var(--ink); }
 
+.pub-input-shell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #F8FAFC;
+  border: 1.5px solid #E2E8F0;
+  border-radius: var(--radius-md);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.pub-input-shell:focus-within {
+  border-color: var(--primary);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+}
+.pub-input-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  transition: color 0.2s ease;
+}
+.pub-input-shell:focus-within .pub-input-icon { color: var(--primary); }
+.pub-input-shell select,
+.pub-input-shell input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 12px 12px 12px 0;
+  font-family: inherit;
+  font-size: 0.92rem;
+  color: var(--ink);
+}
+.pub-input-shell select:disabled,
+.pub-input-shell input:disabled {
+  color: var(--muted);
+  cursor: not-allowed;
+}
+.pub-input-shell select {
+  cursor: pointer;
+  appearance: auto;
+}
+
 .btn-pub-search {
   width: 100%;
   border: none;
@@ -683,7 +753,7 @@ body {
   transition: var(--transition-fast);
 }
 .btn-pub-search:hover { opacity: 0.92; }
-.btn-pub-search:disabled { opacity: 0.6; }
+.btn-pub-search:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .pub-spinner-inline {
   width: 16px; height: 16px;
@@ -747,7 +817,7 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
 
 .pub-footer-note {
   text-align: center;
-  color: rgba(255,255,255,0.65);
+  color: var(--muted);
   font-size: 12px;
   margin-top: 10px;
 }
@@ -772,7 +842,7 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
   display: flex;
   flex-direction: column;
   padding: 24px 18px;
-  background: rgba(8, 15, 35, 0.5);
+  background: rgba(8, 15, 35, 0.94);
   border-right: 1px solid rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -1845,7 +1915,6 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
   margin: 0;
 }
 
-.transcript-info-table,
 .transcript-subjects-table {
   width: 100%;
   border-collapse: collapse;
@@ -1853,19 +1922,24 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
 }
 
 .transcript-info-table {
-  padding: 0 20px 10px;
+  margin: 0 20px 14px;
+  width: calc(100% - 40px);
+  border-collapse: collapse;
+  font-size: 0.86rem;
+  table-layout: fixed;
 }
 
 .transcript-info-table td {
-  padding: 9px 12px;
+  padding: 9px 10px;
   border: 1px solid #E2E8F0;
+  word-break: break-word;
 }
 
 .transcript-info-table .ti-label {
   width: 18%;
   background: #F1F5F9;
   color: #475569;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .transcript-info-table .ti-value {
@@ -1873,10 +1947,14 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
   color: #0F172A;
 }
 
-.transcript-info-table .ti-strong {
+.transcript-info-table .ti-value.ti-strong {
   font-weight: 700;
   color: #1E3A8A;
 }
+
+/* This table intentionally keeps its row/column layout at every
+   screen size (including mobile) — it never stacks into a single
+   column, so the result looks the same everywhere it's viewed. */
 
 .transcript-subjects-table {
   margin: 0 0 20px;
@@ -1900,16 +1978,8 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
   background: #F8FAFC;
 }
 
-@media (max-width: 560px) {
-  .transcript-info-table .ti-label,
-  .transcript-info-table .ti-value {
-    display: block;
-    width: 100%;
-  }
-
-  .transcript-info-table tr {
-    display: block;
-  }
+.transcript-print-footer {
+  display: none;
 }
 
 /* Print: show only the transcript card, sized for A4 */
@@ -1928,14 +1998,17 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
   }
 
   #transcriptCard,
-  #transcriptCard * {
+  #transcriptCard *,
+  #pubTranscriptCard,
+  #pubTranscriptCard * {
     visibility: visible;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
     color-adjust: exact;
   }
 
-  #transcriptCard {
+  #transcriptCard,
+  #pubTranscriptCard {
     position: absolute;
     top: 0;
     left: 0;
@@ -1944,11 +2017,211 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
     margin: 0;
     box-shadow: none;
     border-radius: 0;
+    transform-origin: top left;
   }
 
   .transcript-banner-img {
     max-height: 45mm;
     object-fit: contain;
+  }
+
+  .transcript-print-footer {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1px solid #E2E8F0;
+    font-size: 0.68rem;
+    color: #64748B;
+  }
+
+  .transcript-print-footer-sep {
+    color: #CBD5E1;
+  }
+}
+
+/* =========================================================
+   TABULATION SHEET (A4 landscape, multi-page, printable)
+   ========================================================= */
+
+#tabSheetPages {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.tab-sheet-page {
+  width: 297mm;
+  min-height: 210mm;
+  max-width: 100%;
+  background: #fff;
+  color: #0F172A;
+  padding: 10mm 12mm;
+  box-shadow: var(--glass-shadow);
+  border-radius: var(--radius-md);
+  box-sizing: border-box;
+  font-family: 'Noto Sans Bengali', 'Poppins', sans-serif;
+}
+
+.tab-sheet-head {
+  text-align: center;
+  border-bottom: 2px solid #1E3A8A;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.tab-sheet-head h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+  color: #1E3A8A;
+}
+
+.tab-sheet-head p {
+  font-size: 0.82rem;
+  margin: 0;
+  color: #334155;
+}
+
+.tab-sheet-head .tab-sheet-meta {
+  font-weight: 600;
+}
+
+table.tab-sheet-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.72rem;
+  table-layout: fixed;
+}
+
+table.tab-sheet-table th,
+table.tab-sheet-table td {
+  border: 1px solid #CBD5E1;
+  padding: 4px 5px;
+  text-align: center;
+  word-break: break-word;
+}
+
+table.tab-sheet-table th {
+  background: #1E3A8A;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.68rem;
+}
+
+table.tab-sheet-table td.tab-cell-name {
+  text-align: left;
+}
+
+table.tab-sheet-table tbody tr:nth-child(even) {
+  background: #F1F5F9;
+}
+
+.tab-sheet-summary {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 2px solid #1E3A8A;
+}
+
+.tab-sheet-summary--top {
+  margin-top: 0;
+  margin-bottom: 14px;
+  padding-top: 0;
+  padding-bottom: 12px;
+  border-top: none;
+  border-bottom: 2px solid #1E3A8A;
+}
+
+.tab-sheet-summary h4 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1E3A8A;
+  margin: 0 0 8px;
+}
+
+.tab-summary-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tab-summary-pill {
+  flex: 1;
+  min-width: 78px;
+  text-align: center;
+  background: #F1F5F9;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  padding: 6px 4px;
+}
+
+.tab-summary-pill span {
+  display: block;
+  font-size: 0.62rem;
+  color: #475569;
+  margin-bottom: 2px;
+}
+
+.tab-summary-pill b {
+  font-size: 0.9rem;
+  color: #0F172A;
+}
+
+.tab-summary-pill.tab-pass-rate {
+  flex: 1.4;
+  min-width: 110px;
+  background: #ECFDF5;
+  border-color: #A7F3D0;
+}
+
+.tab-summary-pill.tab-pass-rate b {
+  color: #047857;
+}
+
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 10mm;
+  }
+
+  html, body {
+    background: #fff !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  #tabSheetPages,
+  #tabSheetPages * {
+    visibility: visible;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
+  }
+
+  #tabSheetPages {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    gap: 0;
+  }
+
+  .tab-sheet-page {
+    width: 100%;
+    min-height: 0;
+    box-shadow: none;
+    border-radius: 0;
+    margin: 0;
+    page-break-after: always;
+  }
+
+  .tab-sheet-page:last-child {
+    page-break-after: auto;
   }
 }
 
@@ -2087,8 +2360,9 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
   <!-- ===================== PUBLIC RESULT SEARCH VIEW (no login) ===================== -->
   <div id="publicResultView" class="public-result-view d-none">
     <div class="pub-wrap">
-      <div class="pub-brand">
-        <i class="fa-solid fa-file-circle-check"></i>
+      <div class="pub-brand" id="pubBrandSection">
+        <img id="pubBrandBannerImg" class="pub-brand-banner d-none" alt="প্রতিষ্ঠানের ব্যানার">
+        <i class="fa-solid fa-file-circle-check" id="pubBrandIcon"></i>
         <h1 id="pubBrandInstituteName">ফলাফল সার্চ</h1>
         <p id="pubBrandSub">রোল নম্বর দিয়ে ফলাফল খুঁজুন — লগইন প্রয়োজন নেই</p>
       </div>
@@ -2114,66 +2388,113 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
         <form id="pubSearchForm">
           <div class="mb-3">
             <label class="form-label" for="pubSessionSelect">সেশন</label>
-            <select class="form-select" id="pubSessionSelect" required>
-              <option value="">নির্বাচন করুন</option>
-            </select>
+            <div class="pub-input-shell">
+              <span class="pub-input-icon"><i class="fa-solid fa-calendar-days"></i></span>
+              <select id="pubSessionSelect" required>
+                <option value="">নির্বাচন করুন</option>
+              </select>
+            </div>
           </div>
           <div class="mb-3">
             <label class="form-label" for="pubClassSelect">শ্রেণি</label>
-            <select class="form-select" id="pubClassSelect" required>
-              <option value="">নির্বাচন করুন</option>
-            </select>
+            <div class="pub-input-shell">
+              <span class="pub-input-icon"><i class="fa-solid fa-layer-group"></i></span>
+              <select id="pubClassSelect" required>
+                <option value="">নির্বাচন করুন</option>
+              </select>
+            </div>
           </div>
           <div class="mb-3">
             <label class="form-label" for="pubExamSelect">পরীক্ষা</label>
-            <select class="form-select" id="pubExamSelect" required disabled>
-              <option value="">প্রথমে সেশন ও শ্রেণি নির্বাচন করুন</option>
-            </select>
+            <div class="pub-input-shell" id="pubExamShell">
+              <span class="pub-input-icon"><i class="fa-solid fa-file-pen"></i></span>
+              <select id="pubExamSelect" required disabled>
+                <option value="">প্রথমে সেশন ও শ্রেণি নির্বাচন করুন</option>
+              </select>
+            </div>
           </div>
           <div class="mb-3">
             <label class="form-label" for="pubRollInput">রোল নম্বর</label>
-            <input type="text" class="form-control custom-input" id="pubRollInput" placeholder="যেমন: ১০১" required>
+            <div class="pub-input-shell">
+              <span class="pub-input-icon"><i class="fa-solid fa-hashtag"></i></span>
+              <input type="text" inputmode="numeric" id="pubRollInput" placeholder="যেমন: ১০১" required autocomplete="off">
+            </div>
           </div>
-          <button type="submit" class="btn-pub-search" id="pubSearchBtn">
+          <button type="submit" class="btn-pub-search" id="pubSearchBtn" disabled>
             <span id="pubSearchBtnText"><i class="fa-solid fa-magnifying-glass" style="margin-right:6px;"></i>ফলাফল দেখুন</span>
           </button>
           <div class="alert-box alert-box--error d-none" id="pubSearchError" style="margin-top:14px;"></div>
         </form>
       </div>
 
-      <!-- Result marksheet -->
-      <div class="pub-card d-none" id="pubResultBox">
-        <div class="pub-marksheet-head">
-          <h3 id="pubResultInstituteName">—</h3>
-          <p id="pubResultMeta">—</p>
-        </div>
-        <div class="pub-student-meta">
-          <div><span>নাম</span><b id="pubResultName">—</b></div>
-          <div><span>রোল নম্বর</span><b id="pubResultRoll">—</b></div>
-        </div>
-        <table class="pub-marks-table">
-          <thead>
-            <tr><th>বিষয়</th><th class="num">প্রাপ্ত নম্বর</th></tr>
-          </thead>
-          <tbody id="pubSubjectsTableBody"></tbody>
-        </table>
-        <div class="pub-result-summary">
-          <div class="pub-summary-pill">
-            <span>মোট নম্বর</span>
-            <b id="pubResultTotal">—</b>
+      <!-- Result transcript (identical design to the institute's own view) -->
+      <div class="pub-card d-none" id="pubResultBox" style="padding: 0; background: transparent; box-shadow: none;">
+        <div class="transcript-card" id="pubTranscriptCard">
+          <img id="pubTranscriptBannerImg" class="transcript-banner-img d-none" alt="প্রতিষ্ঠানের ব্যানার">
+          <div class="transcript-header" id="pubTranscriptTextHeader">
+            <h2 id="pubTranscriptInstName">প্রতিষ্ঠানের নাম</h2>
+            <p id="pubTranscriptInstAddress">ঠিকানা</p>
           </div>
-          <div class="pub-summary-pill">
-            <span>জিপিএ</span>
-            <b id="pubResultGpa">—</b>
-          </div>
-          <div class="pub-summary-pill" id="pubResultGradePill">
-            <span>গ্রেড</span>
-            <b id="pubResultGrade">—</b>
+
+          <h3 class="transcript-section-title">শিক্ষার্থীর তথ্য</h3>
+          <table class="transcript-info-table">
+            <tbody>
+              <tr>
+                <td class="ti-label">নাম</td>
+                <td class="ti-value" id="pubTName">&mdash;</td>
+                <td class="ti-label">রোল</td>
+                <td class="ti-value" id="pubTRoll">&mdash;</td>
+              </tr>
+              <tr>
+                <td class="ti-label">শ্রেণি</td>
+                <td class="ti-value" id="pubTClass">&mdash;</td>
+                <td class="ti-label">পরীক্ষা</td>
+                <td class="ti-value" id="pubTExam">&mdash;</td>
+              </tr>
+              <tr>
+                <td class="ti-label">মোট নম্বর</td>
+                <td class="ti-value" id="pubTTotal">&mdash;</td>
+                <td class="ti-label">জিপিএ</td>
+                <td class="ti-value ti-strong" id="pubTGpa">&mdash;</td>
+              </tr>
+              <tr>
+                <td class="ti-label">গ্রেড</td>
+                <td class="ti-value ti-strong" id="pubTGrade">&mdash;</td>
+                <td class="ti-label">সেশন</td>
+                <td class="ti-value" id="pubTSession">&mdash;</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3 class="transcript-section-title">বিষয়ভিত্তিক ফলাফল</h3>
+          <table class="transcript-subjects-table" id="pubTSubjectsTable">
+            <thead>
+              <tr>
+                <th>বিষয়</th>
+                <th>প্রাপ্ত নম্বর</th>
+                <th>গ্রেড</th>
+              </tr>
+            </thead>
+            <tbody id="pubTSubjectsBody">
+              <!-- Rows injected by JS -->
+            </tbody>
+          </table>
+
+          <div class="transcript-print-footer" id="pubPrintFooter">
+            <span id="pubPrintFooterDate"></span>
+            <span class="transcript-print-footer-sep">•</span>
+            <span>Powered By CiT Technology</span>
           </div>
         </div>
-        <button type="button" class="btn-pub-search" style="margin-top:18px; background:#fff; color:var(--primary); border:1px solid var(--primary);" id="pubSearchAgainBtn">
-          <i class="fa-solid fa-rotate-left" style="margin-right:6px;"></i>আবার খুঁজুন
-        </button>
+
+        <div style="margin-top: 18px; display: flex; flex-direction: column; gap: 10px;">
+          <button type="button" class="btn-pub-search" style="background:#fff; color:var(--primary); border:1px solid var(--primary);" id="pubSearchAgainBtn">
+            <i class="fa-solid fa-rotate-left" style="margin-right:6px;"></i>আবার খুঁজুন
+          </button>
+          <button type="button" class="btn-pub-search" id="pubTranscriptPrintBtn">
+            <i class="fa-solid fa-print" style="margin-right:6px;"></i>প্রিন্ট করুন
+          </button>
+        </div>
       </div>
 
       <p class="pub-footer-note">নিরাপদ ও লগইন-বিহীন ফলাফল অনুসন্ধান সেবা</p>
@@ -2334,6 +2655,10 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
         <a href="#" class="nav-item" data-nav="session-class">
           <i class="fa-solid fa-calendar-days" aria-hidden="true"></i>
           <span>সেশন ও শ্রেণি</span>
+        </a>
+        <a href="#" class="nav-item" data-nav="payment">
+          <i class="fa-solid fa-money-bill-wave" aria-hidden="true"></i>
+          <span>পেমেন্ট</span>
         </a>
         <a href="#" class="nav-item" data-nav="results">
           <i class="fa-solid fa-file-circle-check" aria-hidden="true"></i>
@@ -2701,6 +3026,54 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
         </div>
       </div>
 
+      <!-- ============ PAGE: PAYMENT ============ -->
+      <div id="pagePayment" class="dashboard-page d-none">
+
+        <div class="activity-card">
+          <div class="activity-header">
+            <h3>পেমেন্ট ব্যবস্থাপনা</h3>
+          </div>
+
+          <p class="settings-card-desc" style="margin: 0 0 16px;">
+            যে প্রতিষ্ঠান পেমেন্ট সম্পন্ন করেছে তাকে <strong>"পেইড"</strong> হিসেবে চিহ্নিত করুন — তখনই সেই প্রতিষ্ঠান তাদের ফলাফল প্রকাশ (আপলোড) করতে পারবে। নতুন প্রতিষ্ঠান ডিফল্টভাবে "আনপেইড" থাকে এবং ফলাফল প্রকাশ করতে পারবে না।
+          </p>
+
+          <div class="form-group" style="max-width: 360px;">
+            <div class="input-shell">
+              <span class="input-icon" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
+              <input type="text" class="form-control custom-input" id="paymentSearchInput" placeholder="প্রতিষ্ঠানের নাম, মোবাইল বা সাইট আইডি দিয়ে খুঁজুন">
+            </div>
+          </div>
+
+          <div id="paymentListEmpty" class="placeholder-card d-none">
+            <i class="fa-solid fa-school" aria-hidden="true"></i>
+            <p>এখনো কোনো প্রতিষ্ঠান যুক্ত করা হয়নি।</p>
+          </div>
+
+          <div id="paymentSearchEmpty" class="placeholder-card d-none">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <p>এই নামে কোনো প্রতিষ্ঠান পাওয়া যায়নি।</p>
+          </div>
+
+          <div class="table-responsive">
+            <table class="activity-table" id="paymentTable">
+              <thead>
+                <tr>
+                  <th scope="col">প্রতিষ্ঠানের নাম</th>
+                  <th scope="col">মোবাইল</th>
+                  <th scope="col">সাইট ইউনিক আইডি</th>
+                  <th scope="col">অবস্থা</th>
+                  <th scope="col">কার্যক্রম</th>
+                </tr>
+              </thead>
+              <tbody id="paymentTableBody">
+                <!-- Rows injected by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
       <!-- ============ PAGE: SESSION & CLASS ============ -->
       <div id="pageSessionClass" class="dashboard-page d-none">
 
@@ -2845,6 +3218,10 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
         <a href="#" class="nav-item" data-inst-nav="result-list">
           <i class="fa-solid fa-list-ul" aria-hidden="true"></i>
           <span>ফলাফল তালিকা</span>
+        </a>
+        <a href="#" class="nav-item" data-inst-nav="tabulation">
+          <i class="fa-solid fa-table-cells" aria-hidden="true"></i>
+          <span>টেবুলেশন শীট</span>
         </a>
         <a href="#" class="nav-item" data-inst-nav="reports">
           <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
@@ -3122,6 +3499,11 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
       <!-- ============ INSTITUTE PAGE: RESULTS ============ -->
       <div id="instPageResults" class="dashboard-page d-none">
 
+        <div id="paymentLockedBanner" class="alert-box alert-box--error d-none" role="alert" style="margin-bottom: 16px;">
+          <i class="fa-solid fa-lock" aria-hidden="true"></i>
+          <span>আপনার প্রতিষ্ঠানের পেমেন্ট এখনো সম্পন্ন হয়নি, তাই ফলাফল প্রকাশ (আপলোড) করা যাচ্ছে না। ফলাফল প্রকাশ করতে অনুগ্রহ করে প্রশাসনের সাথে যোগাযোগ করে পেমেন্ট সম্পন্ন করুন।</span>
+        </div>
+
         <!-- Upload section -->
         <div class="settings-card">
           <h3 class="settings-card-title">
@@ -3313,6 +3695,12 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
                 <!-- Rows injected by JS -->
               </tbody>
             </table>
+
+            <div class="transcript-print-footer" id="transcriptPrintFooter">
+              <span id="transcriptPrintFooterDate"></span>
+              <span class="transcript-print-footer-sep">•</span>
+              <span>Powered By CiT Technology</span>
+            </div>
           </div>
         </div>
       </div>
@@ -3421,6 +3809,76 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
                 <!-- Rows injected by JS -->
               </tbody>
             </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ INSTITUTE PAGE: TABULATION SHEET ============ -->
+      <div id="instPageTabulation" class="dashboard-page d-none">
+
+        <div class="settings-card" id="tabPickerCard">
+          <h3 class="settings-card-title">
+            <i class="fa-solid fa-table-cells" aria-hidden="true"></i>
+            টেবুলেশন শীট
+          </h3>
+          <p class="settings-card-desc">
+            সেশন, শ্রেণি ও পরীক্ষা নির্বাচন করে সম্পূর্ণ ক্লাসের টেবুলেশন শীট তৈরি করুন — A4 ল্যান্ডস্কেপ আকারে প্রিন্ট করা যাবে।
+          </p>
+
+          <div id="tabError" class="alert-box alert-box--error d-none" role="alert"></div>
+
+          <div class="institute-form-grid">
+            <div class="form-group">
+              <label for="tabSessionSelect" class="form-label">সেশন</label>
+              <div class="input-shell">
+                <span class="input-icon" aria-hidden="true"><i class="fa-solid fa-calendar-days"></i></span>
+                <select class="form-control custom-input custom-select" id="tabSessionSelect">
+                  <option value="">— সেশন নির্বাচন করুন —</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="tabClassSelect" class="form-label">শ্রেণি</label>
+              <div class="input-shell">
+                <span class="input-icon" aria-hidden="true"><i class="fa-solid fa-layer-group"></i></span>
+                <select class="form-control custom-input custom-select" id="tabClassSelect">
+                  <option value="">— শ্রেণি নির্বাচন করুন —</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="tabExamSelect" class="form-label">পরীক্ষা</label>
+              <div class="input-shell">
+                <span class="input-icon" aria-hidden="true"><i class="fa-solid fa-file-pen"></i></span>
+                <select class="form-control custom-input custom-select" id="tabExamSelect">
+                  <option value="">— পরীক্ষা নির্বাচন করুন —</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="institute-form-actions">
+            <button type="button" class="btn btn-login settings-save-btn" id="tabGenerateBtn">
+              <i class="fa-solid fa-table-cells" aria-hidden="true"></i>
+              শীট তৈরি করুন
+            </button>
+          </div>
+        </div>
+
+        <div id="tabSheetWrap" class="d-none">
+          <div class="institute-form-actions" style="margin: 20px 0 12px; justify-content: flex-end;">
+            <button type="button" class="btn-cancel-edit" id="tabBackBtn">
+              <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+              নতুন সিলেকশন
+            </button>
+            <button type="button" class="btn-cancel-edit" id="tabPrintBtn">
+              <i class="fa-solid fa-print" aria-hidden="true"></i>
+              প্রিন্ট করুন
+            </button>
+          </div>
+
+          <div id="tabSheetPages">
+            <!-- Sheet pages injected by JS -->
           </div>
         </div>
       </div>
@@ -3705,11 +4163,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (publicResultView) publicResultView.classList.remove('d-none');
 
     const pubBrandInstituteName = document.getElementById('pubBrandInstituteName');
+    const pubBrandBannerImg     = document.getElementById('pubBrandBannerImg');
+    const pubBrandIcon          = document.getElementById('pubBrandIcon');
     const pubBrandSub           = document.getElementById('pubBrandSub');
+    const pubBrandSection       = document.getElementById('pubBrandSection');
     const pubNoSiteBox          = document.getElementById('pubNoSiteBox');
     const pubLoadingBox         = document.getElementById('pubLoadingBox');
     const pubSearchBox          = document.getElementById('pubSearchBox');
     const pubResultBox          = document.getElementById('pubResultBox');
+    const pubPrintFooterDate    = document.getElementById('pubPrintFooterDate');
 
     const pubSessionSelect = document.getElementById('pubSessionSelect');
     const pubClassSelect    = document.getElementById('pubClassSelect');
@@ -3720,6 +4182,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const pubSearchBtnText  = document.getElementById('pubSearchBtnText');
     const pubSearchError    = document.getElementById('pubSearchError');
     const pubSearchAgainBtn = document.getElementById('pubSearchAgainBtn');
+    const pubTranscriptPrintBtn      = document.getElementById('pubTranscriptPrintBtn');
+    const pubTranscriptBannerImg     = document.getElementById('pubTranscriptBannerImg');
+    const pubTranscriptTextHeader    = document.getElementById('pubTranscriptTextHeader');
+    const pubTranscriptInstName      = document.getElementById('pubTranscriptInstName');
+    const pubTranscriptInstAddress   = document.getElementById('pubTranscriptInstAddress');
+    const pubTName    = document.getElementById('pubTName');
+    const pubTRoll     = document.getElementById('pubTRoll');
+    const pubTClass    = document.getElementById('pubTClass');
+    const pubTExam     = document.getElementById('pubTExam');
+    const pubTSession  = document.getElementById('pubTSession');
+    const pubTTotal    = document.getElementById('pubTTotal');
+    const pubTGpa      = document.getElementById('pubTGpa');
+    const pubTGrade    = document.getElementById('pubTGrade');
+    const pubTSubjectsBody = document.getElementById('pubTSubjectsBody');
 
     let pubInstitute = null; // { key, name, sessions, classes }
 
@@ -3745,6 +4221,11 @@ document.addEventListener('DOMContentLoaded', () => {
       selectEl.innerHTML = `<option value="">${pubEscapeHtml(placeholder)}</option>` +
         values.map((v) => `<option value="${pubEscapeHtml(v)}">${pubEscapeHtml(v)}</option>`).join('');
     }
+    function pubLookupGrade(mark) {
+      const list = (pubInstitute && pubInstitute.grading) ? pubInstitute.grading : [];
+      const band = list.find((g) => mark >= g.min && mark <= g.max);
+      return band ? { grade: band.grade, point: Number(band.point) } : { grade: '-', point: 0 };
+    }
 
     async function pubInit() {
       pubLoadingBox.classList.remove('d-none');
@@ -3763,13 +4244,27 @@ document.addEventListener('DOMContentLoaded', () => {
         pubInstitute = {
           key: docSnap.id,
           name: data.name || 'প্রতিষ্ঠান',
+          address: data.address || '',
+          bannerUrl: data.bannerUrl || '',
           sessions: data.sessions || [],
-          classes: data.classes || []
+          classes: data.classes || [],
+          grading: data.grading || []
         };
 
         pubBrandInstituteName.textContent = pubInstitute.name;
         pubBrandSub.textContent = 'রোল নম্বর দিয়ে ফলাফল খুঁজুন — লগইন প্রয়োজন নেই';
         document.title = `ফলাফল সার্চ | ${pubInstitute.name}`;
+
+        if (pubInstitute.bannerUrl) {
+          pubBrandBannerImg.src = pubInstitute.bannerUrl;
+          pubBrandBannerImg.classList.remove('d-none');
+          pubBrandIcon.classList.add('d-none');
+          pubBrandInstituteName.classList.add('d-none');
+        } else {
+          pubBrandBannerImg.classList.add('d-none');
+          pubBrandIcon.classList.remove('d-none');
+          pubBrandInstituteName.classList.remove('d-none');
+        }
 
         pubPopulateSelect(pubSessionSelect, pubInstitute.sessions, 'সেশন নির্বাচন করুন');
         pubPopulateSelect(pubClassSelect, pubInstitute.classes, 'শ্রেণি নির্বাচন করুন');
@@ -3789,9 +4284,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       pubExamSelect.innerHTML = '<option value="">লোড হচ্ছে...</option>';
       pubExamSelect.disabled = true;
+      pubUpdateSearchBtnState();
 
       if (!session || !className || !pubInstitute) {
         pubExamSelect.innerHTML = '<option value="">প্রথমে সেশন ও শ্রেণি নির্বাচন করুন</option>';
+        pubUpdateSearchBtnState();
         return;
       }
 
@@ -3803,6 +4300,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (snap.empty) {
           pubExamSelect.innerHTML = '<option value="">কোনো পরীক্ষা পাওয়া যায়নি</option>';
           pubExamSelect.disabled = true;
+          pubUpdateSearchBtnState();
           return;
         }
 
@@ -3815,10 +4313,22 @@ document.addEventListener('DOMContentLoaded', () => {
         pubExamSelect.innerHTML = '<option value="">পরীক্ষা লোড করা যায়নি</option>';
         pubExamSelect.disabled = true;
       }
+      pubUpdateSearchBtnState();
+    }
+
+    function pubUpdateSearchBtnState() {
+      const ready = pubSessionSelect.value && pubClassSelect.value &&
+        pubExamSelect.value && pubRollInput.value.trim();
+      pubSearchBtn.disabled = !ready;
     }
 
     pubSessionSelect.addEventListener('change', pubRefreshExamOptions);
     pubClassSelect.addEventListener('change', pubRefreshExamOptions);
+
+    [pubSessionSelect, pubClassSelect, pubExamSelect].forEach((el) => {
+      el.addEventListener('change', pubUpdateSearchBtnState);
+    });
+    pubRollInput.addEventListener('input', pubUpdateSearchBtnState);
 
     pubSearchForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -3856,6 +4366,7 @@ document.addEventListener('DOMContentLoaded', () => {
         pubRenderResult(snap.docs[0].data());
         pubSearchBox.classList.add('d-none');
         pubResultBox.classList.remove('d-none');
+        pubBrandSection.classList.add('d-none');
       } catch (err) {
         console.error('Public result search failed:', err);
         showPubSearchError('ফলাফল খুঁজতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
@@ -3865,37 +4376,60 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function pubRenderResult(r) {
-      document.getElementById('pubResultInstituteName').textContent = pubInstitute.name;
-      document.getElementById('pubResultMeta').textContent = `${r.session || ''} · ${r.className || ''} · ${r.examName || ''}`;
-      document.getElementById('pubResultName').textContent = r.name || '—';
-      document.getElementById('pubResultRoll').textContent = r.roll || '—';
+      if (pubInstitute.bannerUrl) {
+        pubTranscriptBannerImg.src = pubInstitute.bannerUrl;
+        pubTranscriptBannerImg.classList.remove('d-none');
+        pubTranscriptTextHeader.classList.add('d-none');
+      } else {
+        pubTranscriptBannerImg.classList.add('d-none');
+        pubTranscriptTextHeader.classList.remove('d-none');
+      }
 
-      const tbody = document.getElementById('pubSubjectsTableBody');
+      pubTranscriptInstName.textContent = pubInstitute.name;
+      pubTranscriptInstAddress.textContent = pubInstitute.address;
+
+      pubTName.textContent    = r.name;
+      pubTRoll.textContent    = r.roll;
+      pubTClass.textContent   = r.className;
+      pubTExam.textContent    = r.examName;
+      pubTSession.textContent = r.session;
+      pubTTotal.textContent   = r.totalMarks;
+      pubTGpa.textContent     = Number(r.gpa).toFixed(2);
+      pubTGrade.textContent   = r.grade;
+
       const order = Array.isArray(r.subjectOrder) && r.subjectOrder.length
         ? r.subjectOrder
         : Object.keys(r.subjects || {});
 
-      tbody.innerHTML = order.map((subject) => `
-        <tr>
-          <td>${pubEscapeHtml(subject)}</td>
-          <td class="num">${pubEscapeHtml(r.subjects && r.subjects[subject] != null ? r.subjects[subject] : '-')}</td>
-        </tr>
-      `).join('');
+      pubTSubjectsBody.innerHTML = order.map((subject) => {
+        const mark = r.subjects && r.subjects[subject] != null ? r.subjects[subject] : 0;
+        const { grade } = pubLookupGrade(mark);
+        return `
+          <tr>
+            <td>${pubEscapeHtml(subject)}</td>
+            <td>${pubEscapeHtml(mark)}</td>
+            <td>${pubEscapeHtml(grade)}</td>
+          </tr>
+        `;
+      }).join('');
 
-      document.getElementById('pubResultTotal').textContent = r.totalMarks ?? '—';
-      document.getElementById('pubResultGpa').textContent = r.gpa ?? '—';
+      if (pubPrintFooterDate) {
+        pubPrintFooterDate.textContent = formatBanglaDate(new Date());
+      }
+    }
 
-      const gradePill = document.getElementById('pubResultGradePill');
-      const gradeEl = document.getElementById('pubResultGrade');
-      gradeEl.textContent = r.grade || '—';
-      gradePill.classList.remove('pass', 'fail');
-      gradePill.classList.add(r.grade === 'F' ? 'fail' : 'pass');
+    if (pubTranscriptPrintBtn) {
+      pubTranscriptPrintBtn.addEventListener('click', () => {
+        window.print();
+      });
     }
 
     pubSearchAgainBtn.addEventListener('click', () => {
       pubResultBox.classList.add('d-none');
       pubSearchBox.classList.remove('d-none');
+      pubBrandSection.classList.remove('d-none');
       pubRollInput.value = '';
+      pubUpdateSearchBtnState();
       hidePubSearchError();
     });
 
@@ -3940,6 +4474,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const pageAddInstitute   = document.getElementById('pageAddInstitute');
   const pageInstituteList  = document.getElementById('pageInstituteList');
   const pageSessionClass   = document.getElementById('pageSessionClass');
+  const pagePayment        = document.getElementById('pagePayment');
+  const paymentTable       = document.getElementById('paymentTable');
+  const paymentTableBody   = document.getElementById('paymentTableBody');
+  const paymentListEmpty   = document.getElementById('paymentListEmpty');
+  const paymentSearchInput = document.getElementById('paymentSearchInput');
+  const paymentSearchEmpty = document.getElementById('paymentSearchEmpty');
   const pagePlaceholder    = document.getElementById('pagePlaceholder');
   const placeholderText    = document.getElementById('placeholderText');
 
@@ -4098,6 +4638,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const instPageGrading     = document.getElementById('instPageGrading');
   const instPageResults     = document.getElementById('instPageResults');
   const instPageSearchResult = document.getElementById('instPageSearchResult');
+  const instPageTabulation  = document.getElementById('instPageTabulation');
   const instPageSettings    = document.getElementById('instPageSettings');
   const instPagePlaceholder = document.getElementById('instPagePlaceholder');
   const instPlaceholderText = document.getElementById('instPlaceholderText');
@@ -4167,6 +4708,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const resultFileInput     = document.getElementById('resultFileInput');
   const resultUploadBtn     = document.getElementById('resultUploadBtn');
   const downloadSampleBtn   = document.getElementById('downloadSampleBtn');
+  const paymentLockedBanner = document.getElementById('paymentLockedBanner');
   const resultUploadStatus  = document.getElementById('resultUploadStatus');
   const resultUploadAlert       = document.getElementById('resultUploadAlert');
   const resultUploadAlertText   = document.getElementById('resultUploadAlertText');
@@ -4196,6 +4738,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const tSession = document.getElementById('tSession');
   const tSubjectsBody   = document.getElementById('tSubjectsBody');
   const transcriptPrintBtn = document.getElementById('transcriptPrintBtn');
+  const transcriptPrintFooterDate = document.getElementById('transcriptPrintFooterDate');
 
   /* ---------------------------------------------------------
      Element references — Result List page
@@ -4219,6 +4762,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const resultListDeleteAlertText = document.getElementById('resultListDeleteAlertText');
 
   let currentResultListData = [];
+
+  /* ---------------------------------------------------------
+     Element references — Tabulation Sheet page
+  --------------------------------------------------------- */
+  const tabSessionSelect = document.getElementById('tabSessionSelect');
+  const tabClassSelect   = document.getElementById('tabClassSelect');
+  const tabExamSelect    = document.getElementById('tabExamSelect');
+  const tabGenerateBtn   = document.getElementById('tabGenerateBtn');
+  const tabError         = document.getElementById('tabError');
+  const tabPickerCard    = document.getElementById('tabPickerCard');
+  const tabSheetWrap     = document.getElementById('tabSheetWrap');
+  const tabSheetPages    = document.getElementById('tabSheetPages');
+  const tabBackBtn       = document.getElementById('tabBackBtn');
+  const tabPrintBtn      = document.getElementById('tabPrintBtn');
 
   /* ---------------------------------------------------------
      Element references — Result Edit modal
@@ -4660,6 +5217,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'add-institute': 'প্রতিষ্ঠান যুক্ত করুন',
     'institute-list': 'প্রতিষ্ঠান তালিকা',
     'session-class': 'সেশন ও শ্রেণি',
+    payment: 'পেমেন্ট',
     students: 'শিক্ষার্থী',
     results: 'ফলাফল',
     reports: 'রিপোর্ট',
@@ -4672,6 +5230,7 @@ document.addEventListener('DOMContentLoaded', () => {
     pageAddInstitute.classList.add('d-none');
     pageInstituteList.classList.add('d-none');
     pageSessionClass.classList.add('d-none');
+    pagePayment.classList.add('d-none');
     pagePlaceholder.classList.add('d-none');
     hideSettingsAlerts();
     hideInstituteAlerts();
@@ -4694,6 +5253,9 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (key === 'session-class') {
       renderSessionClassPage();
       pageSessionClass.classList.remove('d-none');
+    } else if (key === 'payment') {
+      renderPaymentTable();
+      pagePayment.classList.remove('d-none');
     } else {
       placeholderText.textContent = `${PAGE_TITLES[key] || ''} সেকশনটি শীঘ্রই আসছে।`;
       pagePlaceholder.classList.remove('d-none');
@@ -4748,6 +5310,7 @@ document.addEventListener('DOMContentLoaded', () => {
     results: 'ফলাফল',
     'search-result': 'ফলাফল খুঁজুন',
     'result-list': 'ফলাফল তালিকা',
+    tabulation: 'টেবুলেশন শীট',
     reports: 'রিপোর্ট',
     settings: 'সেটিংস'
   };
@@ -4759,6 +5322,7 @@ document.addEventListener('DOMContentLoaded', () => {
     instPageResults.classList.add('d-none');
     instPageSearchResult.classList.add('d-none');
     instPageResultList.classList.add('d-none');
+    instPageTabulation.classList.add('d-none');
     instPageSettings.classList.add('d-none');
     instPagePlaceholder.classList.add('d-none');
     hideInstSettingsAlerts();
@@ -4774,6 +5338,7 @@ document.addEventListener('DOMContentLoaded', () => {
       instPageGrading.classList.remove('d-none');
     } else if (key === 'results') {
       renderUploadPickers();
+      applyPaymentGate();
       instPageResults.classList.remove('d-none');
     } else if (key === 'search-result') {
       renderSearchPickers();
@@ -4781,6 +5346,9 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (key === 'result-list') {
       renderResultListPickers();
       instPageResultList.classList.remove('d-none');
+    } else if (key === 'tabulation') {
+      renderTabulationPickers();
+      instPageTabulation.classList.remove('d-none');
     } else if (key === 'settings') {
       instCredentialsForm.reset();
       renderBannerSettings();
@@ -4791,6 +5359,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (instTopbarTitle) instTopbarTitle.textContent = INST_PAGE_TITLES[key] || 'ওভারভিউ';
+  }
+
+  /* ---------------------------------------------------------
+     Payment gate — an institute can only publish (upload)
+     results once the super admin has marked them as paid.
+     Re-fetches the institute's own doc each time this page is
+     opened so a payment update by the super admin takes effect
+     without requiring the institute to log out and back in.
+  --------------------------------------------------------- */
+  function setUploadFormLocked(locked) {
+    uploadSessionSelect.disabled = locked;
+    uploadClassSelect.disabled = locked;
+    uploadExamSelect.disabled = locked;
+    resultFileInput.disabled = locked;
+    resultUploadBtn.disabled = locked;
+    paymentLockedBanner.classList.toggle('d-none', !locked);
+  }
+
+  async function applyPaymentGate() {
+    setUploadFormLocked(currentInstitute.paymentStatus !== 'paid');
+    try {
+      const snap = await getDoc(doc(db, 'institutes', currentInstitute.key));
+      if (snap.exists()) {
+        currentInstitute = { ...currentInstitute, paymentStatus: snap.data().paymentStatus || 'unpaid' };
+      }
+    } catch (err) {
+      console.error('Payment status check failed:', err);
+    }
+    setUploadFormLocked(currentInstitute.paymentStatus !== 'paid');
   }
 
   function setInstActiveNav(navKey) {
@@ -5699,6 +6296,11 @@ document.addEventListener('DOMContentLoaded', () => {
       hideResultUploadAlerts();
       resultUploadStatus.textContent = '';
 
+      if (currentInstitute.paymentStatus !== 'paid') {
+        showResultUploadError('আপনার প্রতিষ্ঠানের পেমেন্ট সম্পন্ন হয়নি, তাই ফলাফল প্রকাশ করা যাচ্ছে না। অনুগ্রহ করে প্রশাসনের সাথে যোগাযোগ করুন।');
+        return;
+      }
+
       const session   = uploadSessionSelect.value;
       const className = uploadClassSelect.value;
       const examName  = uploadExamSelect.value;
@@ -5925,6 +6527,10 @@ document.addEventListener('DOMContentLoaded', () => {
       tSubjectsBody.appendChild(tr);
     });
 
+    if (transcriptPrintFooterDate) {
+      transcriptPrintFooterDate.textContent = formatBanglaDate(new Date());
+    }
+
     transcriptWrap.classList.remove('d-none');
   }
 
@@ -5933,6 +6539,38 @@ document.addEventListener('DOMContentLoaded', () => {
       window.print();
     });
   }
+
+  /* ---------------------------------------------------------
+     Fit the printed transcript onto a single A4 page no matter
+     how many subjects it has, by measuring its rendered size
+     right before printing and scaling it down to fit.
+  --------------------------------------------------------- */
+  const PRINT_PAGE_HEIGHT_PX = 1031; // A4 height minus 12mm top+bottom margins, at 96dpi
+  const PRINT_PAGE_WIDTH_PX  = 703;  // A4 width minus 12mm left+right margins, at 96dpi
+
+  function fitCardToOnePage(cardId) {
+    const card = document.getElementById(cardId);
+    if (!card) return;
+    card.style.transform = 'none';
+    const rect = card.getBoundingClientRect();
+    if (!rect.height || !rect.width) return;
+    const scale = Math.min(1, PRINT_PAGE_HEIGHT_PX / rect.height, PRINT_PAGE_WIDTH_PX / rect.width);
+    card.style.transform = scale < 1 ? `scale(${scale})` : 'none';
+  }
+
+  function resetCardScale(cardId) {
+    const card = document.getElementById(cardId);
+    if (card) card.style.transform = 'none';
+  }
+
+  window.addEventListener('beforeprint', () => {
+    fitCardToOnePage('transcriptCard');
+    fitCardToOnePage('pubTranscriptCard');
+  });
+  window.addEventListener('afterprint', () => {
+    resetCardScale('transcriptCard');
+    resetCardScale('pubTranscriptCard');
+  });
 
   /* ---------------------------------------------------------
      Settings — Profile form (name / address / mobile)
@@ -6052,6 +6690,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (pageSessionClass && !pageSessionClass.classList.contains('d-none')) {
           renderSessionClassPage();
+        }
+        if (pagePayment && !pagePayment.classList.contains('d-none')) {
+          renderPaymentTable();
         }
       },
       (err) => {
@@ -6243,6 +6884,107 @@ document.addEventListener('DOMContentLoaded', () => {
     return div.innerHTML;
   }
 
+  /* ---------------------------------------------------------
+     Payment page — mark institutes paid/unpaid. Only a "paid"
+     institute is allowed to publish (upload) results.
+  --------------------------------------------------------- */
+  function renderPaymentTable() {
+    if (!paymentTableBody) return;
+    paymentTableBody.innerHTML = '';
+
+    if (institutes.length === 0) {
+      paymentListEmpty.classList.remove('d-none');
+      paymentSearchEmpty.classList.add('d-none');
+      paymentTable.classList.add('d-none');
+      return;
+    }
+
+    paymentListEmpty.classList.add('d-none');
+
+    const term = (paymentSearchInput.value || '').trim().toLowerCase();
+    const filtered = term
+      ? institutes.filter((inst) =>
+          (inst.name || '').toLowerCase().includes(term) ||
+          (inst.mobile || '').toLowerCase().includes(term) ||
+          (inst.siteId || '').toLowerCase().includes(term)
+        )
+      : institutes;
+
+    if (filtered.length === 0) {
+      paymentSearchEmpty.classList.remove('d-none');
+      paymentTable.classList.add('d-none');
+      return;
+    }
+
+    paymentSearchEmpty.classList.add('d-none');
+    paymentTable.classList.remove('d-none');
+
+    filtered.forEach((inst) => {
+      const isPaid = inst.paymentStatus === 'paid';
+      const tr = document.createElement('tr');
+
+      tr.innerHTML = `
+        <td>${escapeHtml(inst.name)}</td>
+        <td>${escapeHtml(inst.mobile)}</td>
+        <td><span class="site-id-pill">${escapeHtml(inst.siteId)}</span></td>
+        <td>
+          <span class="status-pill ${isPaid ? 'status-pill--success' : 'status-pill--danger'}">
+            ${isPaid ? 'পেইড' : 'আনপেইড'}
+          </span>
+        </td>
+        <td>
+          <div class="row-actions">
+            ${isPaid
+              ? `<button type="button" class="btn-cancel-edit" data-mark-unpaid="${inst.key}">
+                   <i class="fa-solid fa-ban" aria-hidden="true"></i>
+                   আনপেইড করুন
+                 </button>`
+              : `<button type="button" class="btn btn-login settings-save-btn" data-mark-paid="${inst.key}" style="padding: 8px 16px;">
+                   <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                   পেইড হিসেবে চিহ্নিত করুন
+                 </button>`
+            }
+          </div>
+        </td>
+      `;
+
+      paymentTableBody.appendChild(tr);
+    });
+
+    paymentTableBody.querySelectorAll('[data-mark-paid]').forEach((btn) => {
+      btn.addEventListener('click', () => confirmSetPaymentStatus(btn.dataset.markPaid, 'paid'));
+    });
+    paymentTableBody.querySelectorAll('[data-mark-unpaid]').forEach((btn) => {
+      btn.addEventListener('click', () => confirmSetPaymentStatus(btn.dataset.markUnpaid, 'unpaid'));
+    });
+  }
+
+  function confirmSetPaymentStatus(key, status) {
+    const inst = institutes.find((i) => i.key === key);
+    if (!inst) return;
+
+    const isPaid = status === 'paid';
+    openConfirmModal({
+      title: isPaid ? 'পেইড হিসেবে চিহ্নিত করুন' : 'আনপেইড করুন',
+      message: isPaid
+        ? `"${inst.name}"-কে পেইড হিসেবে চিহ্নিত করতে চান? এরপর তারা ফলাফল প্রকাশ (আপলোড) করতে পারবে।`
+        : `"${inst.name}"-কে আনপেইড করতে চান? এরপর তারা আর নতুন ফলাফল প্রকাশ (আপলোড) করতে পারবে না।`,
+      confirmLabel: isPaid ? 'পেইড করুন' : 'আনপেইড করুন',
+      onConfirm: async () => {
+        try {
+          await updateDoc(doc(db, 'institutes', key), { paymentStatus: status });
+        } catch (err) {
+          console.error('Update payment status failed:', err);
+          window.alert('পেমেন্ট অবস্থা পরিবর্তন করা যায়নি। আবার চেষ্টা করুন।');
+        }
+      }
+    });
+  }
+
+  if (paymentSearchInput) {
+    paymentSearchInput.addEventListener('input', renderPaymentTable);
+  }
+
   instituteForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     hideInstituteAlerts();
@@ -6294,6 +7036,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         await addDoc(INSTITUTES_COL, {
           name, address, mobile, siteId, loginId, password,
+          paymentStatus: 'unpaid',
           createdAt: serverTimestamp()
         });
         showInstituteSuccess('প্রতিষ্ঠান সফলভাবে যুক্ত হয়েছে।');
@@ -6747,6 +7490,231 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  /* ---------------------------------------------------------
+     Tabulation Sheet — full-class mark sheet, A4 landscape,
+     16 students on the first page, 20 on every page after.
+  --------------------------------------------------------- */
+  function renderTabulationPickers() {
+    if (!tabSessionSelect || !currentInstitute) return;
+    tabError.classList.add('d-none');
+    tabSheetWrap.classList.add('d-none');
+    tabPickerCard.classList.remove('d-none');
+
+    const sessions = currentInstitute.sessions || [];
+    const classes  = currentInstitute.classes || [];
+
+    const prevSession = tabSessionSelect.value;
+    tabSessionSelect.innerHTML = '<option value="">— সেশন নির্বাচন করুন —</option>';
+    sessions.forEach((s) => {
+      const opt = document.createElement('option');
+      opt.value = s;
+      opt.textContent = s;
+      tabSessionSelect.appendChild(opt);
+    });
+    tabSessionSelect.value = sessions.includes(prevSession) ? prevSession : '';
+
+    const prevClass = tabClassSelect.value;
+    tabClassSelect.innerHTML = '<option value="">— শ্রেণি নির্বাচন করুন —</option>';
+    classes.forEach((c) => {
+      const opt = document.createElement('option');
+      opt.value = c;
+      opt.textContent = c;
+      tabClassSelect.appendChild(opt);
+    });
+    tabClassSelect.value = classes.includes(prevClass) ? prevClass : '';
+
+    populateExamOptions(tabSessionSelect.value, tabClassSelect.value, tabExamSelect);
+  }
+
+  if (tabSessionSelect) {
+    tabSessionSelect.addEventListener('change', () => {
+      populateExamOptions(tabSessionSelect.value, tabClassSelect.value, tabExamSelect);
+    });
+    tabClassSelect.addEventListener('change', () => {
+      populateExamOptions(tabSessionSelect.value, tabClassSelect.value, tabExamSelect);
+    });
+  }
+
+  function showTabError(msg) {
+    tabError.textContent = msg;
+    tabError.classList.remove('d-none');
+  }
+
+  if (tabGenerateBtn) {
+    tabGenerateBtn.addEventListener('click', async () => {
+      tabError.classList.add('d-none');
+
+      const session   = tabSessionSelect.value;
+      const className = tabClassSelect.value;
+      const examName  = tabExamSelect.value;
+
+      if (!session || !className || !examName) {
+        showTabError('অনুগ্রহ করে সেশন, শ্রেণি ও পরীক্ষা — তিনটিই নির্বাচন করুন।');
+        return;
+      }
+
+      tabGenerateBtn.disabled = true;
+      try {
+        const resultsCol = collection(db, 'institutes', currentInstitute.key, 'results');
+        const q = query(
+          resultsCol,
+          where('session', '==', session),
+          where('className', '==', className),
+          where('examName', '==', examName)
+        );
+        const snap = await getDocs(q);
+        const rows = snap.docs.map((d) => d.data());
+
+        if (rows.length === 0) {
+          showTabError('এই সেশন/শ্রেণি/পরীক্ষার জন্য কোনো ফলাফল পাওয়া যায়নি।');
+          return;
+        }
+
+        rows.sort((a, b) => {
+          const an = parseFloat(a.roll);
+          const bn = parseFloat(b.roll);
+          if (!Number.isNaN(an) && !Number.isNaN(bn)) return an - bn;
+          return String(a.roll).localeCompare(String(b.roll));
+        });
+
+        // Union of subjects across all students, preserving first-seen order.
+        const subjects = [];
+        const seenSubjects = new Set();
+        rows.forEach((r) => {
+          const order = Array.isArray(r.subjectOrder) && r.subjectOrder.length
+            ? r.subjectOrder
+            : Object.keys(r.subjects || {});
+          order.forEach((s) => {
+            if (!seenSubjects.has(s)) {
+              seenSubjects.add(s);
+              subjects.push(s);
+            }
+          });
+        });
+
+        renderTabulationSheet({ session, className, examName, rows, subjects });
+        tabPickerCard.classList.add('d-none');
+        tabSheetWrap.classList.remove('d-none');
+      } catch (err) {
+        console.error('Generate tabulation sheet failed:', err);
+        showTabError('শীট তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+      } finally {
+        tabGenerateBtn.disabled = false;
+      }
+    });
+  }
+
+  if (tabBackBtn) {
+    tabBackBtn.addEventListener('click', () => {
+      tabSheetWrap.classList.add('d-none');
+      tabPickerCard.classList.remove('d-none');
+    });
+  }
+
+  if (tabPrintBtn) {
+    tabPrintBtn.addEventListener('click', () => {
+      window.print();
+    });
+  }
+
+  const TAB_GRADE_KEYS = ['A+', 'A', 'A-', 'B', 'C', 'D', 'F'];
+
+  function renderTabulationSheet({ session, className, examName, rows, subjects }) {
+    tabSheetPages.innerHTML = '';
+
+    // Grade distribution + pass rate, computed once over the full class.
+    const gradeCounts = {};
+    TAB_GRADE_KEYS.forEach((g) => { gradeCounts[g] = 0; });
+    let passCount = 0;
+    rows.forEach((r) => {
+      if (Object.prototype.hasOwnProperty.call(gradeCounts, r.grade)) {
+        gradeCounts[r.grade] += 1;
+      }
+      if (r.grade !== 'F') passCount += 1;
+    });
+    const passRate = ((passCount / rows.length) * 100).toFixed(2);
+
+    // Paginate: 16 students on page 1, 20 on every page after.
+    const pages = [];
+    let i = 0;
+    let first = true;
+    while (i < rows.length) {
+      const size = first ? 16 : 20;
+      pages.push(rows.slice(i, i + size));
+      i += size;
+      first = false;
+    }
+    if (pages.length === 0) pages.push([]);
+
+    pages.forEach((pageRows, pageIndex) => {
+      const page = document.createElement('div');
+      page.className = 'tab-sheet-page';
+
+      const subjectHeadHtml = subjects.map((s) => `<th>${escapeHtml(s)}</th>`).join('');
+
+      const rowsHtml = pageRows.map((r) => {
+        const cells = subjects.map((s) => {
+          const mark = r.subjects && r.subjects[s] != null ? r.subjects[s] : '-';
+          return `<td>${escapeHtml(mark)}</td>`;
+        }).join('');
+        return `
+          <tr>
+            <td>${escapeHtml(r.roll)}</td>
+            <td class="tab-cell-name">${escapeHtml(r.name)}</td>
+            ${cells}
+            <td>${escapeHtml(r.totalMarks)}</td>
+            <td>${escapeHtml(Number(r.gpa).toFixed(2))}</td>
+            <td>${escapeHtml(r.grade)}</td>
+          </tr>
+        `;
+      }).join('');
+
+      const summaryHtml = pageIndex === 0 ? `
+        <div class="tab-sheet-summary tab-sheet-summary--top">
+          <h4>ফলাফলের সারসংক্ষেপ</h4>
+          <div class="tab-summary-row">
+            <div class="tab-summary-pill tab-pass-rate">
+              <span>পাশের হার</span>
+              <b>${escapeHtml(passRate)}%</b>
+            </div>
+            ${TAB_GRADE_KEYS.map((g) => `
+              <div class="tab-summary-pill">
+                <span>${escapeHtml(g)}</span>
+                <b>${escapeHtml(gradeCounts[g])}</b>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      ` : '';
+
+      page.innerHTML = `
+        <div class="tab-sheet-head">
+          <h2>${escapeHtml(currentInstitute.name)}</h2>
+          <p class="tab-sheet-meta">${escapeHtml(examName)} &nbsp;•&nbsp; শ্রেণি: ${escapeHtml(className)} &nbsp;•&nbsp; সেশন: ${escapeHtml(session)}</p>
+        </div>
+        ${summaryHtml}
+        <table class="tab-sheet-table">
+          <thead>
+            <tr>
+              <th>রোল</th>
+              <th>নাম</th>
+              ${subjectHeadHtml}
+              <th>মোট</th>
+              <th>জিপিএ</th>
+              <th>গ্রেড</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml}
+          </tbody>
+        </table>
+      `;
+
+      tabSheetPages.appendChild(page);
+    });
+  }
+
 
   /* ---------------------------------------------------------
      Result Edit modal — edit name + subject marks, then
