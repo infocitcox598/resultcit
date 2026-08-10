@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light only" />
   <title>সুপার এডমিন পোর্টাল | ফলাফল ব্যবস্থাপনা সিস্টেম</title>
   <meta name="description" content="মাল্টি-ইনস্টিটিউট ফলাফল ব্যবস্থাপনা সিস্টেমের জন্য নিরাপদ সুপার এডমিন লগইন।" />
 
@@ -97,24 +98,15 @@ body {
 .bg-gradient {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #0B1739 0%, #1E3A8A 30%, #3730A3 65%, #4C1D95 100%);
-  background-size: 200% 200%;
-  animation: gradientShift 18s ease infinite;
+  background: linear-gradient(135deg, #0B1739 0%, #14245C 45%, #1E3A8A 100%);
 }
 
-@keyframes gradientShift {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* Floating blurred circles */
+/* Floating blurred circles (static — no movement, one accent color family) */
 .shape {
   position: absolute;
   border-radius: 50%;
   filter: blur(60px);
-  opacity: 0.55;
-  will-change: transform;
+  opacity: 0.4;
 }
 
 .shape-1 {
@@ -122,8 +114,7 @@ body {
   height: 420px;
   top: -120px;
   left: -100px;
-  background: #60A5FA;
-  animation: floatA 16s ease-in-out infinite;
+  background: #2563EB;
 }
 
 .shape-2 {
@@ -131,8 +122,8 @@ body {
   height: 360px;
   bottom: -140px;
   right: -80px;
-  background: #A78BFA;
-  animation: floatB 20s ease-in-out infinite;
+  background: #1D4ED8;
+  opacity: 0.3;
 }
 
 .shape-3 {
@@ -140,9 +131,8 @@ body {
   height: 280px;
   top: 55%;
   left: 8%;
-  background: #34D399;
-  opacity: 0.28;
-  animation: floatA 22s ease-in-out infinite reverse;
+  background: #3B82F6;
+  opacity: 0.2;
 }
 
 .shape-4 {
@@ -150,19 +140,8 @@ body {
   height: 240px;
   top: 8%;
   right: 12%;
-  background: #F472B6;
-  opacity: 0.22;
-  animation: floatB 14s ease-in-out infinite;
-}
-
-@keyframes floatA {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50%      { transform: translate(40px, 60px) scale(1.08); }
-}
-
-@keyframes floatB {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50%      { transform: translate(-50px, -40px) scale(1.05); }
+  background: #60A5FA;
+  opacity: 0.16;
 }
 
 /* Signature element: faint tabulated "mark sheet" grid,
@@ -1131,48 +1110,53 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
 .profile-banner {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 18px;
   flex-wrap: wrap;
-  background: linear-gradient(120deg, rgba(37, 99, 235, 0.4), rgba(124, 58, 237, 0.35)),
-              var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  gap: 10px 18px;
+  background: #0F1E4A;
+  border: none;
   border-radius: var(--radius-lg);
-  padding: 22px 26px;
+  padding: 14px 20px;
   margin-bottom: 20px;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.3);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.35);
 }
 
 .profile-banner-left {
   display: flex;
   align-items: center;
-  gap: 18px;
+  flex-wrap: wrap;
+  gap: 10px 16px;
   min-width: 0;
   flex: 1;
 }
 
 .profile-avatar-lg {
-  width: 64px;
-  height: 64px;
+  width: 42px;
+  height: 42px;
   flex-shrink: 0;
-  border-radius: 18px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 1rem;
   font-weight: 700;
-  color: #fff;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  color: var(--primary);
+  background: #fff;
 }
 
 .profile-banner-info {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 16px;
   min-width: 0;
+}
+
+.profile-banner-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  white-space: nowrap;
 }
 
 .profile-banner-role {
@@ -1180,67 +1164,59 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
   align-items: center;
   gap: 6px;
   width: fit-content;
-  font-size: 0.68rem;
+  font-size: 0.64rem;
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #E0E7FF;
-  background: rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 999px;
   padding: 3px 10px;
-}
-
-.profile-banner-name {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: #fff;
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
 }
 
 .profile-banner-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 6px 16px;
 }
 
 .meta-item {
   display: flex;
   align-items: center;
-  gap: 7px;
-  font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.85);
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.88);
+  white-space: nowrap;
 }
 
 .meta-item i {
-  color: #C7D2FE;
-  font-size: 0.78rem;
+  color: #93C5FD;
+  font-size: 0.76rem;
 }
 
 .profile-banner-edit {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 600;
-  color: #fff;
-  background: rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--primary);
+  background: #fff;
+  border: none;
   border-radius: var(--radius-sm);
-  padding: 9px 16px;
+  padding: 8px 14px;
   text-decoration: none;
   white-space: nowrap;
-  transition: background var(--transition-fast), transform var(--transition-fast);
+  flex-shrink: 0;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .profile-banner-edit:hover {
-  background: rgba(255, 255, 255, 0.26);
-  color: #fff;
+  color: var(--primary);
   transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.25);
 }
 
 @media (max-width: 560px) {
@@ -1528,9 +1504,9 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
   display: inline-block;
   font-size: 0.74rem;
   font-weight: 600;
-  color: #C7D2FE;
-  background: rgba(124, 58, 237, 0.2);
-  border: 1px solid rgba(167, 139, 250, 0.35);
+  color: #BFDBFE;
+  background: rgba(37, 99, 235, 0.22);
+  border: 1px solid rgba(96, 165, 250, 0.4);
   border-radius: 999px;
   padding: 3px 10px;
 }
@@ -1639,7 +1615,7 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
 
 .stat-icon--primary  { background: linear-gradient(135deg, #2563EB, #3B82F6); }
 .stat-icon--success  { background: linear-gradient(135deg, #059669, #10B981); }
-.stat-icon--secondary{ background: linear-gradient(135deg, #7C3AED, #A78BFA); }
+.stat-icon--secondary{ background: linear-gradient(135deg, #0284C7, #38BDF8); }
 .stat-icon--danger   { background: linear-gradient(135deg, #DC2626, #EF4444); }
 
 .stat-info {
@@ -1888,22 +1864,26 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
 }
 
 .transcript-header {
-  background: linear-gradient(135deg, #0F1E4A, #1E3A8A);
-  color: #fff;
+  background: #14245C;
+  color: #FFFFFF;
   text-align: center;
   padding: 22px 20px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  color-adjust: exact;
 }
 
 .transcript-header h2 {
   margin: 0 0 4px;
   font-size: 1.3rem;
   font-weight: 700;
+  color: #FFFFFF;
 }
 
 .transcript-header p {
   margin: 0;
   font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: #C7D2FE;
 }
 
 .transcript-section-title {
@@ -2000,7 +1980,11 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
   #transcriptCard,
   #transcriptCard *,
   #pubTranscriptCard,
-  #pubTranscriptCard * {
+  #pubTranscriptCard *,
+  #transcriptPrintFooter,
+  #transcriptPrintFooter *,
+  #pubPrintFooter,
+  #pubPrintFooter * {
     visibility: visible;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
@@ -2027,14 +2011,19 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
 
   .transcript-print-footer {
     display: flex !important;
+    position: fixed;
+    bottom: 8mm;
+    left: 12mm;
+    right: 12mm;
     justify-content: center;
     align-items: center;
     gap: 8px;
-    margin-top: 14px;
-    padding-top: 10px;
+    margin: 0;
+    padding-top: 8px;
     border-top: 1px solid #E2E8F0;
     font-size: 0.68rem;
     color: #64748B;
+    background: #fff;
   }
 
   .transcript-print-footer-sep {
@@ -2479,12 +2468,12 @@ table.tab-sheet-table tbody tr:nth-child(even) {
               <!-- Rows injected by JS -->
             </tbody>
           </table>
+        </div>
 
-          <div class="transcript-print-footer" id="pubPrintFooter">
-            <span id="pubPrintFooterDate"></span>
-            <span class="transcript-print-footer-sep">•</span>
-            <span>Powered By CiT Technology</span>
-          </div>
+        <div class="transcript-print-footer" id="pubPrintFooter">
+          <span id="pubPrintFooterDate"></span>
+          <span class="transcript-print-footer-sep">•</span>
+          <span>Powered By CiT Technology</span>
         </div>
 
         <div style="margin-top: 18px; display: flex; flex-direction: column; gap: 10px;">
@@ -3223,6 +3212,10 @@ table.tab-sheet-table tbody tr:nth-child(even) {
           <i class="fa-solid fa-table-cells" aria-hidden="true"></i>
           <span>টেবুলেশন শীট</span>
         </a>
+        <a href="#" class="nav-item" data-inst-nav="delete-results">
+          <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+          <span>ফলাফল ডিলিট</span>
+        </a>
         <a href="#" class="nav-item" data-inst-nav="reports">
           <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
           <span>রিপোর্ট</span>
@@ -3511,7 +3504,7 @@ table.tab-sheet-table tbody tr:nth-child(even) {
             ফলাফল আপলোড করুন
           </h3>
           <p class="settings-card-desc">
-            সেশন, শ্রেণি ও পরীক্ষা নির্বাচন করে Excel/CSV ফাইল আপলোড করুন। ফাইলের প্রথম দুই কলাম হতে হবে <strong>রোল</strong> ও <strong>নাম</strong>, এরপরের কলামগুলো বিষয়ের নাম ও প্রাপ্ত নম্বর। একই সেশন/শ্রেণি/পরীক্ষার জন্য পুনরায় আপলোড করলে আগের ফলাফল প্রতিস্থাপিত হবে।
+            সেশন, শ্রেণি ও পরীক্ষা নির্বাচন করে Excel/CSV ফাইল আপলোড করুন। ফাইলের প্রথম দুই কলাম হতে হবে <strong>রোল</strong> ও <strong>নাম</strong>, এরপরের কলামগুলো বিষয়ের নাম ও প্রাপ্ত নম্বর। কোনো বিষয়ে শিক্ষার্থী অনুপস্থিত থাকলে সেই ঘর খালি রাখুন অথবা "অনু"/"AB" লিখুন — সেই বিষয়ে GPA/গ্রেড হিসাব হবে না, শুধু মোট নম্বরে বাকি বিষয়গুলো যোগ হবে এবং সামগ্রিক ফলাফলে "অনু" দেখাবে। একই সেশন/শ্রেণি/পরীক্ষার জন্য পুনরায় আপলোড করলে আগের ফলাফল প্রতিস্থাপিত হবে।
           </p>
 
           <div id="resultUploadAlert" class="alert-box alert-box--success d-none" role="alert" aria-live="polite">
@@ -3638,13 +3631,6 @@ table.tab-sheet-table tbody tr:nth-child(even) {
 
         <!-- Transcript display -->
         <div id="transcriptWrap" class="d-none">
-          <div class="institute-form-actions" style="margin: 20px 0 12px; justify-content: flex-end;">
-            <button type="button" class="btn-cancel-edit" id="transcriptPrintBtn">
-              <i class="fa-solid fa-print" aria-hidden="true"></i>
-              প্রিন্ট করুন
-            </button>
-          </div>
-
           <div class="transcript-card" id="transcriptCard">
             <img id="transcriptBannerImg" class="transcript-banner-img d-none" alt="প্রতিষ্ঠানের ব্যানার">
             <div class="transcript-header" id="transcriptTextHeader">
@@ -3695,12 +3681,19 @@ table.tab-sheet-table tbody tr:nth-child(even) {
                 <!-- Rows injected by JS -->
               </tbody>
             </table>
+          </div>
 
-            <div class="transcript-print-footer" id="transcriptPrintFooter">
-              <span id="transcriptPrintFooterDate"></span>
-              <span class="transcript-print-footer-sep">•</span>
-              <span>Powered By CiT Technology</span>
-            </div>
+          <div class="transcript-print-footer" id="transcriptPrintFooter">
+            <span id="transcriptPrintFooterDate"></span>
+            <span class="transcript-print-footer-sep">•</span>
+            <span>Powered By CiT Technology</span>
+          </div>
+
+          <div style="margin-top: 18px; max-width: 780px;">
+            <button type="button" class="btn btn-login" id="transcriptPrintBtn" style="width: 100%;">
+              <i class="fa-solid fa-print" aria-hidden="true"></i>
+              প্রিন্ট করুন
+            </button>
           </div>
         </div>
       </div>
@@ -3879,6 +3872,78 @@ table.tab-sheet-table tbody tr:nth-child(even) {
 
           <div id="tabSheetPages">
             <!-- Sheet pages injected by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ INSTITUTE PAGE: DELETE RESULTS ============ -->
+      <div id="instPageDeleteResults" class="dashboard-page d-none">
+
+        <div class="settings-card institute-picker-card">
+          <h3 class="settings-card-title">
+            <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+            ফলাফল ডিলিট
+          </h3>
+          <p class="settings-card-desc">সেশন ও শ্রেণি নির্বাচন করুন — সেই শ্রেণির প্রকাশিত সকল পরীক্ষার ফলাফলের তালিকা দেখাবে। যেকোনো পরীক্ষার সম্পূর্ণ ফলাফল একসাথে মুছে ফেলা যাবে।</p>
+
+          <div class="institute-form-grid">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="delSessionSelect" class="form-label">সেশন</label>
+              <div class="input-shell">
+                <span class="input-icon" aria-hidden="true"><i class="fa-solid fa-calendar-days"></i></span>
+                <select class="form-control custom-input custom-select" id="delSessionSelect">
+                  <option value="">— সেশন নির্বাচন করুন —</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="delClassSelect" class="form-label">শ্রেণি</label>
+              <div class="input-shell">
+                <span class="input-icon" aria-hidden="true"><i class="fa-solid fa-layer-group"></i></span>
+                <select class="form-control custom-input custom-select" id="delClassSelect">
+                  <option value="">— শ্রেণি নির্বাচন করুন —</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- State: nothing selected yet -->
+        <div id="delResultPrompt" class="placeholder-card">
+          <i class="fa-solid fa-filter" aria-hidden="true"></i>
+          <p>পরীক্ষার ফলাফলের তালিকা দেখতে সেশন ও শ্রেণি নির্বাচন করুন।</p>
+        </div>
+
+        <!-- State: session+class selected, but no published results found -->
+        <div id="delResultEmpty" class="placeholder-card d-none">
+          <i class="fa-solid fa-file-circle-check" aria-hidden="true"></i>
+          <p>এই সেশন/শ্রেণির জন্য এখনো কোনো ফলাফল প্রকাশ করা হয়নি।</p>
+        </div>
+
+        <div id="delResultAlert" class="alert-box alert-box--success d-none" role="alert" aria-live="polite">
+          <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+          <span id="delResultAlertText">সফলভাবে সম্পন্ন হয়েছে।</span>
+        </div>
+
+        <!-- State: list of exams with published results -->
+        <div class="activity-card" id="delResultCard" style="display: none;">
+          <div class="activity-header">
+            <h3>প্রকাশিত পরীক্ষার ফলাফল</h3>
+            <span class="activity-header-tag" id="delResultCount">০টি পরীক্ষা</span>
+          </div>
+          <div class="table-responsive">
+            <table class="activity-table" id="delResultTable">
+              <thead>
+                <tr>
+                  <th scope="col">পরীক্ষার নাম</th>
+                  <th scope="col">শিক্ষার্থী সংখ্যা</th>
+                  <th scope="col">কার্যক্রম</th>
+                </tr>
+              </thead>
+              <tbody id="delResultTableBody">
+                <!-- Rows injected by JS -->
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -4394,8 +4459,8 @@ document.addEventListener('DOMContentLoaded', () => {
       pubTExam.textContent    = r.examName;
       pubTSession.textContent = r.session;
       pubTTotal.textContent   = r.totalMarks;
-      pubTGpa.textContent     = Number(r.gpa).toFixed(2);
-      pubTGrade.textContent   = r.grade;
+      pubTGpa.textContent     = isAbsentValue(r.grade) ? 'N/A' : Number(r.gpa).toFixed(2);
+      pubTGrade.textContent   = isAbsentValue(r.grade) ? 'N/A' : r.grade;
 
       const order = Array.isArray(r.subjectOrder) && r.subjectOrder.length
         ? r.subjectOrder
@@ -4403,7 +4468,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       pubTSubjectsBody.innerHTML = order.map((subject) => {
         const mark = r.subjects && r.subjects[subject] != null ? r.subjects[subject] : 0;
-        const { grade } = pubLookupGrade(mark);
+        const grade = isAbsentValue(mark) ? ABSENT_MARK : pubLookupGrade(mark).grade;
         return `
           <tr>
             <td>${pubEscapeHtml(subject)}</td>
@@ -4639,6 +4704,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const instPageResults     = document.getElementById('instPageResults');
   const instPageSearchResult = document.getElementById('instPageSearchResult');
   const instPageTabulation  = document.getElementById('instPageTabulation');
+  const instPageDeleteResults = document.getElementById('instPageDeleteResults');
   const instPageSettings    = document.getElementById('instPageSettings');
   const instPagePlaceholder = document.getElementById('instPagePlaceholder');
   const instPlaceholderText = document.getElementById('instPlaceholderText');
@@ -4776,6 +4842,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const tabSheetPages    = document.getElementById('tabSheetPages');
   const tabBackBtn       = document.getElementById('tabBackBtn');
   const tabPrintBtn      = document.getElementById('tabPrintBtn');
+
+  /* ---------------------------------------------------------
+     Element references — Delete Results page
+  --------------------------------------------------------- */
+  const delSessionSelect  = document.getElementById('delSessionSelect');
+  const delClassSelect    = document.getElementById('delClassSelect');
+  const delResultPrompt   = document.getElementById('delResultPrompt');
+  const delResultEmpty    = document.getElementById('delResultEmpty');
+  const delResultAlert    = document.getElementById('delResultAlert');
+  const delResultAlertText = document.getElementById('delResultAlertText');
+  const delResultCard     = document.getElementById('delResultCard');
+  const delResultCount    = document.getElementById('delResultCount');
+  const delResultTableBody = document.getElementById('delResultTableBody');
 
   /* ---------------------------------------------------------
      Element references — Result Edit modal
@@ -5311,6 +5390,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'search-result': 'ফলাফল খুঁজুন',
     'result-list': 'ফলাফল তালিকা',
     tabulation: 'টেবুলেশন শীট',
+    'delete-results': 'ফলাফল ডিলিট',
     reports: 'রিপোর্ট',
     settings: 'সেটিংস'
   };
@@ -5323,6 +5403,7 @@ document.addEventListener('DOMContentLoaded', () => {
     instPageSearchResult.classList.add('d-none');
     instPageResultList.classList.add('d-none');
     instPageTabulation.classList.add('d-none');
+    instPageDeleteResults.classList.add('d-none');
     instPageSettings.classList.add('d-none');
     instPagePlaceholder.classList.add('d-none');
     hideInstSettingsAlerts();
@@ -5349,6 +5430,9 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (key === 'tabulation') {
       renderTabulationPickers();
       instPageTabulation.classList.remove('d-none');
+    } else if (key === 'delete-results') {
+      renderDeleteResultsPickers();
+      instPageDeleteResults.classList.remove('d-none');
     } else if (key === 'settings') {
       instCredentialsForm.reset();
       renderBannerSettings();
@@ -6063,6 +6147,12 @@ document.addEventListener('DOMContentLoaded', () => {
      System (see getGradingList() from the grading feature).
      ========================================================= */
 
+  const ABSENT_MARK = 'অনু';
+
+  function isAbsentValue(v) {
+    return v === ABSENT_MARK;
+  }
+
   function lookupGrade(mark) {
     const list = getGradingList();
     const band = list.find((g) => mark >= g.min && mark <= g.max);
@@ -6083,24 +6173,38 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* ---------------------------------------------------------
-     Compute total marks, GPA and overall grade from a list of
-     subject marks. Rule: if the student fails (0 point) in ANY
-     subject, the whole result is a fail — GPA becomes 0.00 and
-     overall grade becomes "F", regardless of other subjects.
+     Compute total marks, GPA and overall grade from a subject
+     -> mark map. Rules:
+     - If the student fails (0 point) in ANY subject, the whole
+       result is a fail — GPA becomes 0.00 and grade becomes "F".
+     - If the student is absent (ABSENT_MARK) in ANY subject, no
+       GPA/grade is computed at all (grade becomes "অনু"); total
+       marks still sums whatever subjects DO have a real mark.
+       Absence takes priority over the fail rule.
   --------------------------------------------------------- */
-  function computeResultSummary(marks) {
+  function computeResultSummary(subjects) {
     let total = 0;
     let pointSum = 0;
     let subjectCount = 0;
     let hasFail = false;
+    let hasAbsent = false;
 
-    marks.forEach((mark) => {
+    Object.values(subjects).forEach((val) => {
+      if (isAbsentValue(val)) {
+        hasAbsent = true;
+        return;
+      }
+      const mark = Number(val);
       total += mark;
       const { point } = lookupGrade(mark);
       pointSum += point;
       subjectCount += 1;
       if (point === 0) hasFail = true;
     });
+
+    if (hasAbsent) {
+      return { totalMarks: total, gpa: null, grade: ABSENT_MARK };
+    }
 
     if (subjectCount === 0) {
       return { totalMarks: 0, gpa: 0, grade: '-' };
@@ -6358,18 +6462,19 @@ document.addEventListener('DOMContentLoaded', () => {
           const roll = String(row[rollKey]).trim();
           const name = String(row[nameKey]).trim();
           const subjects = {};
-          const marks = [];
 
           subjectKeys.forEach((sk) => {
             const rawMark = row[sk];
-            const mark = parseFloat(rawMark);
-            if (!Number.isNaN(mark)) {
+            const trimmed = String(rawMark ?? '').trim();
+            const mark = parseFloat(trimmed);
+            if (trimmed === '' || Number.isNaN(mark)) {
+              subjects[sk] = ABSENT_MARK;
+            } else {
               subjects[sk] = mark;
-              marks.push(mark);
             }
           });
 
-          const summary = computeResultSummary(marks);
+          const summary = computeResultSummary(subjects);
 
           return {
             roll, name, subjects,
@@ -6512,12 +6617,12 @@ document.addEventListener('DOMContentLoaded', () => {
     tExam.textContent    = data.examName;
     tSession.textContent = data.session;
     tTotal.textContent   = data.totalMarks;
-    tGpa.textContent     = Number(data.gpa).toFixed(2);
-    tGrade.textContent   = data.grade;
+    tGpa.textContent     = isAbsentValue(data.grade) ? 'N/A' : Number(data.gpa).toFixed(2);
+    tGrade.textContent   = isAbsentValue(data.grade) ? 'N/A' : data.grade;
 
     tSubjectsBody.innerHTML = '';
     getOrderedSubjectEntries(data).forEach(([subject, mark]) => {
-      const { grade } = lookupGrade(mark);
+      const grade = isAbsentValue(mark) ? ABSENT_MARK : lookupGrade(mark).grade;
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${escapeHtml(subject)}</td>
@@ -7440,7 +7545,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <td>${escapeHtml(r.roll)}</td>
         <td>${escapeHtml(r.name)}</td>
         <td>${escapeHtml(r.totalMarks)}</td>
-        <td>${escapeHtml(Number(r.gpa).toFixed(2))}</td>
+        <td>${escapeHtml(isAbsentValue(r.grade) ? ABSENT_MARK : Number(r.gpa).toFixed(2))}</td>
         <td><span class="site-id-pill">${escapeHtml(r.grade)}</span></td>
         <td>
           <div class="row-actions">
@@ -7623,17 +7728,22 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderTabulationSheet({ session, className, examName, rows, subjects }) {
     tabSheetPages.innerHTML = '';
 
-    // Grade distribution + pass rate, computed once over the full class.
+    // Grade distribution + pass rate, computed only over students who
+    // actually have a grade — absent students are excluded entirely
+    // (not counted as pass, fail, or part of the total).
     const gradeCounts = {};
     TAB_GRADE_KEYS.forEach((g) => { gradeCounts[g] = 0; });
     let passCount = 0;
+    let gradedTotal = 0;
     rows.forEach((r) => {
+      if (isAbsentValue(r.grade)) return;
+      gradedTotal += 1;
       if (Object.prototype.hasOwnProperty.call(gradeCounts, r.grade)) {
         gradeCounts[r.grade] += 1;
       }
       if (r.grade !== 'F') passCount += 1;
     });
-    const passRate = ((passCount / rows.length) * 100).toFixed(2);
+    const passRate = gradedTotal > 0 ? ((passCount / gradedTotal) * 100).toFixed(2) : '0.00';
 
     // Paginate: 16 students on page 1, 20 on every page after.
     const pages = [];
@@ -7664,12 +7774,13 @@ document.addEventListener('DOMContentLoaded', () => {
             <td class="tab-cell-name">${escapeHtml(r.name)}</td>
             ${cells}
             <td>${escapeHtml(r.totalMarks)}</td>
-            <td>${escapeHtml(Number(r.gpa).toFixed(2))}</td>
+            <td>${escapeHtml(isAbsentValue(r.grade) ? ABSENT_MARK : Number(r.gpa).toFixed(2))}</td>
             <td>${escapeHtml(r.grade)}</td>
           </tr>
         `;
       }).join('');
 
+      const absentCount = rows.length - gradedTotal;
       const summaryHtml = pageIndex === 0 ? `
         <div class="tab-sheet-summary tab-sheet-summary--top">
           <h4>ফলাফলের সারসংক্ষেপ</h4>
@@ -7684,6 +7795,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 <b>${escapeHtml(gradeCounts[g])}</b>
               </div>
             `).join('')}
+            ${absentCount > 0 ? `
+              <div class="tab-summary-pill">
+                <span>অনুপস্থিত</span>
+                <b>${escapeHtml(absentCount)}</b>
+              </div>
+            ` : ''}
           </div>
         </div>
       ` : '';
@@ -7715,6 +7832,136 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  /* ---------------------------------------------------------
+     Delete Results page — pick session+class, see every exam
+     that has published results, and bulk-delete an exam's
+     entire result set in one action.
+  --------------------------------------------------------- */
+  function renderDeleteResultsPickers() {
+    if (!delSessionSelect || !currentInstitute) return;
+    delResultAlert.classList.add('d-none');
+
+    const sessions = currentInstitute.sessions || [];
+    const classes  = currentInstitute.classes || [];
+
+    const prevSession = delSessionSelect.value;
+    delSessionSelect.innerHTML = '<option value="">— সেশন নির্বাচন করুন —</option>';
+    sessions.forEach((s) => {
+      const opt = document.createElement('option');
+      opt.value = s;
+      opt.textContent = s;
+      delSessionSelect.appendChild(opt);
+    });
+    delSessionSelect.value = sessions.includes(prevSession) ? prevSession : '';
+
+    const prevClass = delClassSelect.value;
+    delClassSelect.innerHTML = '<option value="">— শ্রেণি নির্বাচন করুন —</option>';
+    classes.forEach((c) => {
+      const opt = document.createElement('option');
+      opt.value = c;
+      opt.textContent = c;
+      delClassSelect.appendChild(opt);
+    });
+    delClassSelect.value = classes.includes(prevClass) ? prevClass : '';
+
+    loadPublishedExamsForDelete();
+  }
+
+  if (delSessionSelect) {
+    delSessionSelect.addEventListener('change', loadPublishedExamsForDelete);
+    delClassSelect.addEventListener('change', loadPublishedExamsForDelete);
+  }
+
+  function showDeleteResultsState(state) {
+    delResultPrompt.classList.toggle('d-none', state !== 'prompt');
+    delResultEmpty.classList.toggle('d-none', state !== 'empty');
+    delResultCard.style.display = state === 'list' ? '' : 'none';
+  }
+
+  async function loadPublishedExamsForDelete() {
+    delResultAlert.classList.add('d-none');
+
+    const session   = delSessionSelect.value;
+    const className = delClassSelect.value;
+
+    if (!session || !className) {
+      showDeleteResultsState('prompt');
+      return;
+    }
+
+    try {
+      const resultsCol = collection(db, 'institutes', currentInstitute.key, 'results');
+      const q = query(resultsCol, where('session', '==', session), where('className', '==', className));
+      const snap = await getDocs(q);
+
+      if (snap.empty) {
+        showDeleteResultsState('empty');
+        return;
+      }
+
+      // Group result docs by exam name so each exam can be deleted in bulk.
+      const examGroups = {};
+      snap.docs.forEach((d) => {
+        const data = d.data();
+        const exam = data.examName || '—';
+        if (!examGroups[exam]) examGroups[exam] = [];
+        examGroups[exam].push(d.ref);
+      });
+
+      renderDeleteExamTable(examGroups);
+      showDeleteResultsState('list');
+    } catch (err) {
+      console.error('Load published exams failed:', err);
+      showDeleteResultsState('empty');
+    }
+  }
+
+  function renderDeleteExamTable(examGroups) {
+    const examNames = Object.keys(examGroups).sort();
+    delResultCount.textContent = `${examNames.length}টি পরীক্ষা`;
+    delResultTableBody.innerHTML = '';
+
+    examNames.forEach((examName) => {
+      const refs = examGroups[examName];
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${escapeHtml(examName)}</td>
+        <td>${escapeHtml(refs.length)} জন</td>
+        <td>
+          <div class="row-actions">
+            <button type="button" class="row-action-btn row-action-btn--delete" data-del-exam="${escapeHtml(examName)}" aria-label="ফলাফল মুছে ফেলুন">
+              <i class="fa-solid fa-trash" aria-hidden="true"></i>
+            </button>
+          </div>
+        </td>
+      `;
+      delResultTableBody.appendChild(tr);
+    });
+
+    delResultTableBody.querySelectorAll('[data-del-exam]').forEach((btn) => {
+      btn.addEventListener('click', () => confirmDeleteExamResults(btn.dataset.delExam, examGroups[btn.dataset.delExam]));
+    });
+  }
+
+  function confirmDeleteExamResults(examName, refs) {
+    openConfirmModal({
+      title: 'পরীক্ষার ফলাফল মুছে ফেলুন',
+      message: `"${examName}" পরীক্ষার ${refs.length} জন শিক্ষার্থীর ফলাফল সম্পূর্ণভাবে মুছে ফেলতে চান? এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।`,
+      confirmLabel: 'মুছে ফেলুন',
+      onConfirm: async () => {
+        try {
+          await Promise.all(refs.map((ref) => deleteDoc(ref)));
+          delResultAlertText.textContent = `"${examName}" পরীক্ষার ফলাফল সফলভাবে মুছে ফেলা হয়েছে।`;
+          delResultAlert.classList.remove('d-none');
+          loadPublishedExamsForDelete();
+        } catch (err) {
+          console.error('Bulk delete exam results failed:', err);
+          window.alert('ফলাফল মুছে ফেলা যায়নি। আবার চেষ্টা করুন।');
+        }
+      }
+    });
+  }
+
 
   /* ---------------------------------------------------------
      Result Edit modal — edit name + subject marks, then
@@ -7738,7 +7985,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <label class="form-label" for="${safeId}">${escapeHtml(subject)}</label>
         <div class="input-shell">
           <span class="input-icon" aria-hidden="true"><i class="fa-solid fa-hashtag"></i></span>
-          <input type="number" class="form-control custom-input" id="${safeId}" data-subject="${escapeHtml(subject)}" value="${escapeHtml(mark)}" min="0" max="100">
+          <input type="text" class="form-control custom-input" id="${safeId}" data-subject="${escapeHtml(subject)}" value="${escapeHtml(isAbsentValue(mark) ? '' : mark)}" placeholder="০-১০০, খালি রাখলে অনুপস্থিত">
         </div>
       `;
       resultEditSubjectsGrid.appendChild(group);
@@ -7778,27 +8025,31 @@ document.addEventListener('DOMContentLoaded', () => {
       const subjectInputs = resultEditSubjectsGrid.querySelectorAll('[data-subject]');
       const subjects = {};
       const subjectOrder = [];
-      const marks = [];
       let hasInvalid = false;
 
       subjectInputs.forEach((input) => {
-        const mark = parseFloat(input.value);
+        const trimmed = input.value.trim();
+        if (trimmed === '' || trimmed === ABSENT_MARK || /^ab(sent)?$/i.test(trimmed)) {
+          subjects[input.dataset.subject] = ABSENT_MARK;
+          subjectOrder.push(input.dataset.subject);
+          return;
+        }
+        const mark = parseFloat(trimmed);
         if (Number.isNaN(mark) || mark < 0 || mark > 100) {
           hasInvalid = true;
           return;
         }
         subjects[input.dataset.subject] = mark;
         subjectOrder.push(input.dataset.subject);
-        marks.push(mark);
       });
 
       if (hasInvalid) {
-        resultEditErrorText.textContent = 'নম্বর ০ থেকে ১০০ এর মধ্যে হতে হবে।';
+        resultEditErrorText.textContent = 'নম্বর ০ থেকে ১০০ এর মধ্যে হতে হবে, অথবা অনুপস্থিতের জন্য ঘরটি খালি রাখুন।';
         resultEditErrorAlert.classList.remove('d-none');
         return;
       }
 
-      const summary = computeResultSummary(marks);
+      const summary = computeResultSummary(subjects);
       const total = summary.totalMarks;
       const gpa = summary.gpa;
       const overall = { grade: summary.grade };
