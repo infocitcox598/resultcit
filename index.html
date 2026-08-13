@@ -825,7 +825,13 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
   border-right: 1px solid rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  height: 100vh;
+  position: sticky;
+  top: 0;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
 }
 
 .sidebar-brand {
@@ -1766,6 +1772,9 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
     padding: 18px 16px 20px;
     overflow-y: auto;
     overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
     border-right: 1px solid rgba(255, 255, 255, 0.14);
     border-bottom: none;
     transform: translateX(-100%);
@@ -1849,11 +1858,12 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
 .transcript-card {
   background: #ffffff;
   color: #111827;
-  border-radius: var(--radius-lg);
+  border-radius: 6px;
+  border: 1px solid #D1D5DB;
   overflow: hidden;
   max-width: 210mm;
   margin: 0 auto;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
   font-family: 'Noto Sans Bengali', 'Poppins', sans-serif;
 }
 
@@ -1867,7 +1877,7 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
   background: #14245C;
   color: #FFFFFF;
   text-align: center;
-  padding: 22px 20px;
+  padding: 18px 20px;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
   color-adjust: exact;
@@ -1875,24 +1885,25 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
 
 .transcript-header h2 {
   margin: 0 0 4px;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: #FFFFFF;
 }
 
 .transcript-header p {
   margin: 0;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: #C7D2FE;
 }
 
 .transcript-section-title {
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   font-weight: 700;
-  color: #1E3A8A;
-  border-bottom: 2px solid #2563EB;
-  padding: 18px 20px 8px;
-  margin: 0;
+  color: #111827;
+  text-align: center;
+  border-bottom: 1px solid #111827;
+  padding: 16px 20px 8px;
+  margin: 0 20px;
 }
 
 .transcript-subjects-table {
@@ -1902,23 +1913,24 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
 }
 
 .transcript-info-table {
-  margin: 0 20px 14px;
+  margin: 14px 20px;
   width: calc(100% - 40px);
   border-collapse: collapse;
   font-size: 0.86rem;
   table-layout: fixed;
+  border: 1px solid #9CA3AF;
 }
 
 .transcript-info-table td {
-  padding: 9px 10px;
-  border: 1px solid #E2E8F0;
+  padding: 7px 10px;
+  border: 1px solid #9CA3AF;
   word-break: break-word;
 }
 
 .transcript-info-table .ti-label {
   width: 18%;
-  background: #F1F5F9;
-  color: #475569;
+  background: #F3F4F6;
+  color: #374151;
   font-weight: 700;
 }
 
@@ -1929,7 +1941,7 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
 
 .transcript-info-table .ti-value.ti-strong {
   font-weight: 700;
-  color: #1E3A8A;
+  color: #111827;
 }
 
 /* This table intentionally keeps its row/column layout at every
@@ -1937,93 +1949,193 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
    column, so the result looks the same everywhere it's viewed. */
 
 .transcript-subjects-table {
-  margin: 0 0 20px;
+  margin: 0 20px 16px;
+  width: calc(100% - 40px);
+  border: 1px solid #9CA3AF;
 }
 
 .transcript-subjects-table th {
-  background: #1E3A8A;
-  color: #fff;
+  background: #F3F4F6;
+  color: #111827;
   text-align: left;
-  padding: 10px 14px;
-  font-size: 0.82rem;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  border: 1px solid #9CA3AF;
 }
 
 .transcript-subjects-table td {
-  padding: 9px 14px;
-  border: 1px solid #E2E8F0;
+  padding: 7px 12px;
+  border: 1px solid #9CA3AF;
   color: #0F172A;
 }
 
 .transcript-subjects-table tbody tr:nth-child(even) {
-  background: #F8FAFC;
+  background: #F9FAFB;
+}
+
+.transcript-exam-title {
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #111827;
+  padding: 12px 20px 10px;
+  border-bottom: 1px solid #111827;
+  margin: 0 20px;
 }
 
 .transcript-print-footer {
   display: none;
 }
 
-/* Print: show only the transcript card, sized for A4 */
+/* Print: show only the transcript card, sized for A4.
+   IMPORTANT: we hide everything else with display:none (not
+   visibility:hidden) so hidden content is fully removed from
+   the page's layout flow — otherwise the rest of the dashboard
+   (sidebar, other pages, modals) still occupies vertical space
+   even while invisible, and that phantom height was pushing the
+   transcript onto a spurious blank second printed page. */
 @media print {
   @page {
     size: A4;
-    margin: 12mm;
+    margin: 25mm;
   }
 
   html, body {
     background: #fff !important;
   }
 
-  body * {
-    visibility: hidden;
+  /* Hide global chrome that's always present regardless of which
+     view is active. Everything below only ever uses display:none
+     or display:block (never "revert") because some Android print
+     engines don't support the revert keyword, which silently left
+     the whole page blank when we relied on it. */
+  .bg-layer,
+  .sidebar,
+  .sidebar-overlay,
+  .topbar,
+  #confirmModalOverlay,
+  #resultEditModalOverlay {
+    display: none !important;
   }
 
+  /* Institute "ফলাফল খুঁজুন" transcript */
+  .dashboard-page { display: none !important; }
+  #instPageSearchResult { display: block !important; }
+  #instPageSearchResult > *:not(#transcriptWrap) { display: none !important; }
+  #transcriptWrap > *:not(#transcriptCard) { display: none !important; }
+
+  /* Public (student) result-search transcript */
+  .pub-brand,
+  #pubSearchBox,
+  #pubNoSiteBox,
+  #pubLoadingBox,
+  .pub-footer-note {
+    display: none !important;
+  }
+  #pubResultBox { display: block !important; }
+  #pubResultBox > *:not(#pubTranscriptCard) { display: none !important; }
+
   #transcriptCard,
-  #transcriptCard *,
-  #pubTranscriptCard,
-  #pubTranscriptCard *,
-  #transcriptPrintFooter,
-  #transcriptPrintFooter *,
-  #pubPrintFooter,
-  #pubPrintFooter * {
-    visibility: visible;
+  #pubTranscriptCard {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
     color-adjust: exact;
   }
 
+  #transcriptCard *,
+  #pubTranscriptCard * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
+  }
+
+  /* The @page margin above already frames the sheet with even
+     whitespace on all four sides. The card is the only thing
+     left visible on the page, so it just renders in normal
+     document flow — no position:absolute/fixed trick needed,
+     and none of those tricks proved reliable across the various
+     Android print engines we tested against (fixed positioning
+     in particular caused the card to be repeated on every page
+     when content pushed onto a second page). */
   #transcriptCard,
   #pubTranscriptCard {
-    position: absolute;
-    top: 0;
-    left: 0;
+    display: block !important;
     width: 100%;
     max-width: 100%;
-    margin: 0;
+    margin: 0 !important;
     box-shadow: none;
     border-radius: 0;
-    transform-origin: top left;
+    border: none;
   }
 
   .transcript-banner-img {
-    max-height: 45mm;
+    max-height: 32mm;
     object-fit: contain;
   }
 
+  .transcript-header {
+    padding: 16px 18px !important;
+  }
+
+  .transcript-header h2 {
+    font-size: 1.15rem !important;
+    margin: 0 0 3px !important;
+  }
+
+  .transcript-header p {
+    font-size: 0.78rem !important;
+  }
+
+  .transcript-exam-title {
+    font-size: 0.88rem !important;
+    padding: 10px 16px 8px !important;
+    margin: 0 16px !important;
+  }
+
+  .transcript-section-title {
+    font-size: 0.85rem !important;
+    padding: 12px 0 6px !important;
+    margin: 0 16px !important;
+  }
+
+  .transcript-info-table {
+    margin: 10px 16px !important;
+    width: calc(100% - 32px) !important;
+    font-size: 0.78rem !important;
+  }
+
+  .transcript-info-table td {
+    padding: 6px 8px !important;
+  }
+
+  .transcript-subjects-table {
+    font-size: 0.76rem !important;
+    margin: 0 16px 10px !important;
+    width: calc(100% - 32px) !important;
+  }
+
+  .transcript-subjects-table th {
+    padding: 6px 10px !important;
+    font-size: 0.72rem !important;
+  }
+
+  .transcript-subjects-table td {
+    padding: 5px 10px !important;
+  }
+
+  /* Sits in normal flow right after the subjects table — fixed
+     positioning here caused the same page-duplication bug as on
+     the card, so we keep this simple and reliable instead. */
   .transcript-print-footer {
     display: flex !important;
-    position: fixed;
-    bottom: 8mm;
-    left: 12mm;
-    right: 12mm;
     justify-content: center;
     align-items: center;
     gap: 8px;
-    margin: 0;
-    padding-top: 8px;
+    margin: 16px 16px 0 !important;
+    padding-top: 10px;
     border-top: 1px solid #E2E8F0;
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     color: #64748B;
-    background: #fff;
   }
 
   .transcript-print-footer-sep {
@@ -2180,19 +2292,29 @@ table.tab-sheet-table tbody tr:nth-child(even) {
     background: #fff !important;
   }
 
-  body * {
-    visibility: hidden;
+  .bg-layer,
+  .sidebar,
+  .sidebar-overlay,
+  .topbar,
+  #confirmModalOverlay,
+  #resultEditModalOverlay {
+    display: none !important;
   }
+
+  .dashboard-page { display: none !important; }
+  #instPageTabulation { display: block !important; }
+  #instPageTabulation > *:not(#tabSheetWrap) { display: none !important; }
+  #tabSheetWrap > *:not(#tabSheetPages) { display: none !important; }
 
   #tabSheetPages,
   #tabSheetPages * {
-    visibility: visible;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
     color-adjust: exact;
   }
 
   #tabSheetPages {
+    display: flex !important;
     position: absolute;
     top: 0;
     left: 0;
@@ -2425,6 +2547,8 @@ table.tab-sheet-table tbody tr:nth-child(even) {
             <p id="pubTranscriptInstAddress">ঠিকানা</p>
           </div>
 
+          <div class="transcript-exam-title" id="pubTranscriptExamTitle">&mdash;</div>
+
           <h3 class="transcript-section-title">শিক্ষার্থীর তথ্য</h3>
           <table class="transcript-info-table">
             <tbody>
@@ -2437,8 +2561,8 @@ table.tab-sheet-table tbody tr:nth-child(even) {
               <tr>
                 <td class="ti-label">শ্রেণি</td>
                 <td class="ti-value" id="pubTClass">&mdash;</td>
-                <td class="ti-label">পরীক্ষা</td>
-                <td class="ti-value" id="pubTExam">&mdash;</td>
+                <td class="ti-label">সেশন</td>
+                <td class="ti-value" id="pubTSession">&mdash;</td>
               </tr>
               <tr>
                 <td class="ti-label">মোট নম্বর</td>
@@ -2448,9 +2572,7 @@ table.tab-sheet-table tbody tr:nth-child(even) {
               </tr>
               <tr>
                 <td class="ti-label">গ্রেড</td>
-                <td class="ti-value ti-strong" id="pubTGrade">&mdash;</td>
-                <td class="ti-label">সেশন</td>
-                <td class="ti-value" id="pubTSession">&mdash;</td>
+                <td class="ti-value ti-strong" colspan="3" id="pubTGrade">&mdash;</td>
               </tr>
             </tbody>
           </table>
@@ -2468,12 +2590,12 @@ table.tab-sheet-table tbody tr:nth-child(even) {
               <!-- Rows injected by JS -->
             </tbody>
           </table>
-        </div>
 
-        <div class="transcript-print-footer" id="pubPrintFooter">
-          <span id="pubPrintFooterDate"></span>
-          <span class="transcript-print-footer-sep">•</span>
-          <span>Powered By CiT Technology</span>
+          <div class="transcript-print-footer" id="pubPrintFooter">
+            <span id="pubPrintFooterDate"></span>
+            <span class="transcript-print-footer-sep">•</span>
+            <span>Powered By CiT Technology</span>
+          </div>
         </div>
 
         <div style="margin-top: 18px; display: flex; flex-direction: column; gap: 10px;">
@@ -2648,6 +2770,10 @@ table.tab-sheet-table tbody tr:nth-child(even) {
         <a href="#" class="nav-item" data-nav="payment">
           <i class="fa-solid fa-money-bill-wave" aria-hidden="true"></i>
           <span>পেমেন্ট</span>
+        </a>
+        <a href="#" class="nav-item" data-nav="backup">
+          <i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i>
+          <span>ব্যাকআপ</span>
         </a>
         <a href="#" class="nav-item" data-nav="results">
           <i class="fa-solid fa-file-circle-check" aria-hidden="true"></i>
@@ -3059,6 +3185,113 @@ table.tab-sheet-table tbody tr:nth-child(even) {
                 <!-- Rows injected by JS -->
               </tbody>
             </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ PAGE: BACKUP ============ -->
+      <div id="pageBackup" class="dashboard-page d-none">
+
+        <!-- Step 1: pick an institute -->
+        <div class="activity-card" id="backupInstituteStep">
+          <div class="activity-header">
+            <h3>ফলাফল ব্যাকআপ</h3>
+          </div>
+
+          <p class="settings-card-desc" style="margin: 0 0 16px;">
+            প্রতিষ্ঠান খুঁজে বের করুন, তারপর সেশন, শ্রেণি ও পরীক্ষা নির্বাচন করে সেই পরীক্ষার ফলাফল Excel ফাইল হিসেবে ডাউনলোড (ব্যাকআপ) করুন।
+          </p>
+
+          <div class="form-group" style="max-width: 360px;">
+            <div class="input-shell">
+              <span class="input-icon" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
+              <input type="text" class="form-control custom-input" id="backupInstituteSearchInput" placeholder="প্রতিষ্ঠানের নাম লিখুন">
+            </div>
+          </div>
+
+          <div id="backupInstituteEmpty" class="placeholder-card d-none">
+            <i class="fa-solid fa-school" aria-hidden="true"></i>
+            <p>এখনো কোনো প্রতিষ্ঠান যুক্ত করা হয়নি।</p>
+          </div>
+
+          <div id="backupInstitutePrompt" class="placeholder-card d-none">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <p>প্রতিষ্ঠানের নাম লিখে খুঁজুন।</p>
+          </div>
+
+          <div id="backupInstituteSearchEmpty" class="placeholder-card d-none">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <p>এই নামে কোনো প্রতিষ্ঠান পাওয়া যায়নি।</p>
+          </div>
+
+          <div class="table-responsive">
+            <table class="activity-table" id="backupInstituteTable">
+              <thead>
+                <tr>
+                  <th scope="col">প্রতিষ্ঠানের নাম</th>
+                  <th scope="col">মোবাইল</th>
+                  <th scope="col">সাইট ইউনিক আইডি</th>
+                  <th scope="col">কার্যক্রম</th>
+                </tr>
+              </thead>
+              <tbody id="backupInstituteTableBody">
+                <!-- Rows injected by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Step 2: pick session/class/exam and download -->
+        <div class="settings-card institute-picker-card d-none" id="backupOptionsStep">
+          <div class="activity-header" style="margin-bottom: 14px;">
+            <h3 id="backupSelectedInstituteName">—</h3>
+            <button type="button" class="btn-cancel-edit" id="backupChangeInstituteBtn">
+              <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+              অন্য প্রতিষ্ঠান
+            </button>
+          </div>
+
+          <div id="backupError" class="alert-box alert-box--error d-none" role="alert"></div>
+          <div id="backupSuccess" class="alert-box alert-box--success d-none" role="alert">
+            <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+            <span id="backupSuccessText">ব্যাকআপ ডাউনলোড হয়েছে।</span>
+          </div>
+
+          <div class="institute-form-grid">
+            <div class="form-group">
+              <label for="backupSessionSelect" class="form-label">সেশন</label>
+              <div class="input-shell">
+                <span class="input-icon" aria-hidden="true"><i class="fa-solid fa-calendar-days"></i></span>
+                <select class="form-control custom-input custom-select" id="backupSessionSelect">
+                  <option value="">— সেশন নির্বাচন করুন —</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="backupClassSelect" class="form-label">শ্রেণি</label>
+              <div class="input-shell">
+                <span class="input-icon" aria-hidden="true"><i class="fa-solid fa-layer-group"></i></span>
+                <select class="form-control custom-input custom-select" id="backupClassSelect">
+                  <option value="">— শ্রেণি নির্বাচন করুন —</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="backupExamSelect" class="form-label">পরীক্ষা</label>
+              <div class="input-shell">
+                <span class="input-icon" aria-hidden="true"><i class="fa-solid fa-file-pen"></i></span>
+                <select class="form-control custom-input custom-select" id="backupExamSelect">
+                  <option value="">— পরীক্ষা নির্বাচন করুন —</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="institute-form-actions">
+            <button type="button" class="btn btn-login settings-save-btn" id="backupDownloadBtn">
+              <i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i>
+              ব্যাকআপ ডাউনলোড করুন
+            </button>
           </div>
         </div>
       </div>
@@ -3638,6 +3871,8 @@ table.tab-sheet-table tbody tr:nth-child(even) {
               <p id="transcriptInstAddress">ঠিকানা</p>
             </div>
 
+            <div class="transcript-exam-title" id="transcriptExamTitle">&mdash;</div>
+
             <h3 class="transcript-section-title">শিক্ষার্থীর তথ্য</h3>
             <table class="transcript-info-table">
               <tbody>
@@ -3650,8 +3885,8 @@ table.tab-sheet-table tbody tr:nth-child(even) {
                 <tr>
                   <td class="ti-label">শ্রেণি</td>
                   <td class="ti-value" id="tClass">&mdash;</td>
-                  <td class="ti-label">পরীক্ষা</td>
-                  <td class="ti-value" id="tExam">&mdash;</td>
+                  <td class="ti-label">সেশন</td>
+                  <td class="ti-value" id="tSession">&mdash;</td>
                 </tr>
                 <tr>
                   <td class="ti-label">মোট নম্বর</td>
@@ -3661,9 +3896,7 @@ table.tab-sheet-table tbody tr:nth-child(even) {
                 </tr>
                 <tr>
                   <td class="ti-label">গ্রেড</td>
-                  <td class="ti-value ti-strong" id="tGrade">&mdash;</td>
-                  <td class="ti-label">সেশন</td>
-                  <td class="ti-value" id="tSession">&mdash;</td>
+                  <td class="ti-value ti-strong" colspan="3" id="tGrade">&mdash;</td>
                 </tr>
               </tbody>
             </table>
@@ -3681,15 +3914,19 @@ table.tab-sheet-table tbody tr:nth-child(even) {
                 <!-- Rows injected by JS -->
               </tbody>
             </table>
+
+            <div class="transcript-print-footer" id="transcriptPrintFooter">
+              <span id="transcriptPrintFooterDate"></span>
+              <span class="transcript-print-footer-sep">•</span>
+              <span>Powered By CiT Technology</span>
+            </div>
           </div>
 
-          <div class="transcript-print-footer" id="transcriptPrintFooter">
-            <span id="transcriptPrintFooterDate"></span>
-            <span class="transcript-print-footer-sep">•</span>
-            <span>Powered By CiT Technology</span>
-          </div>
-
-          <div style="margin-top: 18px; max-width: 780px;">
+          <div style="margin-top: 18px; max-width: 780px; display: flex; flex-direction: column; gap: 10px;">
+            <button type="button" class="btn-cancel-edit" id="transcriptSearchAgainBtn" style="justify-content: center;">
+              <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+              পুনরায় খুঁজুন
+            </button>
             <button type="button" class="btn btn-login" id="transcriptPrintBtn" style="width: 100%;">
               <i class="fa-solid fa-print" aria-hidden="true"></i>
               প্রিন্ট করুন
@@ -4006,6 +4243,9 @@ table.tab-sheet-table tbody tr:nth-child(even) {
             <p class="settings-card-desc">
               রেজাল্ট ট্রান্সক্রিপ্টের উপরে দেখানোর জন্য একটি ব্যানার/লোগো ছবির লিংক দিন (Google Drive অথবা যেকোনো সরাসরি ছবির লিংক)। Drive লিংক হলে "Anyone with the link" অ্যাক্সেস দেওয়া থাকতে হবে।
             </p>
+            <p class="settings-card-desc" style="margin-top: -8px;">
+              <strong>প্রস্তাবিত সাইজ: ১২০০ × ৩০০ পিক্সেল (৪:১ অনুপাত)।</strong> ছবিটা লম্বা/চওড়া (banner-shaped) হলে ভালো দেখাবে — বর্গাকার বা লম্বালম্বি ছবি ব্যবহার করবেন না, প্রিন্টে বিকৃত দেখাতে পারে।
+            </p>
 
             <div class="form-group">
               <label for="instBannerUrl" class="form-label">ব্যানার ছবির লিংক</label>
@@ -4255,7 +4495,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pubTName    = document.getElementById('pubTName');
     const pubTRoll     = document.getElementById('pubTRoll');
     const pubTClass    = document.getElementById('pubTClass');
-    const pubTExam     = document.getElementById('pubTExam');
+    const pubTranscriptExamTitle = document.getElementById('pubTranscriptExamTitle');
     const pubTSession  = document.getElementById('pubTSession');
     const pubTTotal    = document.getElementById('pubTTotal');
     const pubTGpa      = document.getElementById('pubTGpa');
@@ -4452,11 +4692,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       pubTranscriptInstName.textContent = pubInstitute.name;
       pubTranscriptInstAddress.textContent = pubInstitute.address;
+      pubTranscriptExamTitle.textContent = r.examName;
 
       pubTName.textContent    = r.name;
       pubTRoll.textContent    = r.roll;
       pubTClass.textContent   = r.className;
-      pubTExam.textContent    = r.examName;
       pubTSession.textContent = r.session;
       pubTTotal.textContent   = r.totalMarks;
       pubTGpa.textContent     = isAbsentValue(r.grade) ? 'N/A' : Number(r.gpa).toFixed(2);
@@ -4545,6 +4785,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const paymentListEmpty   = document.getElementById('paymentListEmpty');
   const paymentSearchInput = document.getElementById('paymentSearchInput');
   const paymentSearchEmpty = document.getElementById('paymentSearchEmpty');
+  const pageBackup                 = document.getElementById('pageBackup');
+  const backupInstituteStep        = document.getElementById('backupInstituteStep');
+  const backupInstituteSearchInput = document.getElementById('backupInstituteSearchInput');
+  const backupInstituteEmpty       = document.getElementById('backupInstituteEmpty');
+  const backupInstitutePrompt      = document.getElementById('backupInstitutePrompt');
+  const backupInstituteSearchEmpty = document.getElementById('backupInstituteSearchEmpty');
+  const backupInstituteTable       = document.getElementById('backupInstituteTable');
+  const backupInstituteTableBody   = document.getElementById('backupInstituteTableBody');
+  const backupOptionsStep          = document.getElementById('backupOptionsStep');
+  const backupSelectedInstituteName = document.getElementById('backupSelectedInstituteName');
+  const backupChangeInstituteBtn   = document.getElementById('backupChangeInstituteBtn');
+  const backupError                = document.getElementById('backupError');
+  const backupSuccess              = document.getElementById('backupSuccess');
+  const backupSuccessText          = document.getElementById('backupSuccessText');
+  const backupSessionSelect        = document.getElementById('backupSessionSelect');
+  const backupClassSelect          = document.getElementById('backupClassSelect');
+  const backupExamSelect           = document.getElementById('backupExamSelect');
+  const backupDownloadBtn          = document.getElementById('backupDownloadBtn');
   const pagePlaceholder    = document.getElementById('pagePlaceholder');
   const placeholderText    = document.getElementById('placeholderText');
 
@@ -4797,13 +5055,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const tName    = document.getElementById('tName');
   const tRoll    = document.getElementById('tRoll');
   const tClass   = document.getElementById('tClass');
-  const tExam    = document.getElementById('tExam');
+  const transcriptExamTitle = document.getElementById('transcriptExamTitle');
   const tTotal   = document.getElementById('tTotal');
   const tGpa     = document.getElementById('tGpa');
   const tGrade   = document.getElementById('tGrade');
   const tSession = document.getElementById('tSession');
   const tSubjectsBody   = document.getElementById('tSubjectsBody');
   const transcriptPrintBtn = document.getElementById('transcriptPrintBtn');
+  const transcriptSearchAgainBtn = document.getElementById('transcriptSearchAgainBtn');
   const transcriptPrintFooterDate = document.getElementById('transcriptPrintFooterDate');
 
   /* ---------------------------------------------------------
@@ -5259,13 +5518,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function openDrawer(sidebarEl, overlayEl) {
     sidebarEl.classList.add('sidebar--open');
     overlayEl.classList.add('active');
-    document.body.style.overflow = 'hidden';
   }
 
   function closeDrawer(sidebarEl, overlayEl) {
     sidebarEl.classList.remove('sidebar--open');
     overlayEl.classList.remove('active');
-    document.body.style.overflow = '';
   }
 
   if (sidebarToggleBtn) {
@@ -5297,6 +5554,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'institute-list': 'প্রতিষ্ঠান তালিকা',
     'session-class': 'সেশন ও শ্রেণি',
     payment: 'পেমেন্ট',
+    backup: 'ব্যাকআপ',
     students: 'শিক্ষার্থী',
     results: 'ফলাফল',
     reports: 'রিপোর্ট',
@@ -5310,6 +5568,7 @@ document.addEventListener('DOMContentLoaded', () => {
     pageInstituteList.classList.add('d-none');
     pageSessionClass.classList.add('d-none');
     pagePayment.classList.add('d-none');
+    pageBackup.classList.add('d-none');
     pagePlaceholder.classList.add('d-none');
     hideSettingsAlerts();
     hideInstituteAlerts();
@@ -5335,6 +5594,9 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (key === 'payment') {
       renderPaymentTable();
       pagePayment.classList.remove('d-none');
+    } else if (key === 'backup') {
+      renderBackupPage();
+      pageBackup.classList.remove('d-none');
     } else {
       placeholderText.textContent = `${PAGE_TITLES[key] || ''} সেকশনটি শীঘ্রই আসছে।`;
       pagePlaceholder.classList.remove('d-none');
@@ -6254,10 +6516,13 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderSearchPickers() {
     if (!searchSessionSelect || !currentInstitute) return;
 
+    resultSearchErrorAlert.classList.add('d-none');
+    transcriptWrap.classList.add('d-none');
+    searchRollInput.value = '';
+
     const sessions = currentInstitute.sessions || [];
     const classes  = currentInstitute.classes || [];
 
-    const prevSession = searchSessionSelect.value;
     searchSessionSelect.innerHTML = '<option value="">— সেশন নির্বাচন করুন —</option>';
     sessions.forEach((s) => {
       const opt = document.createElement('option');
@@ -6265,9 +6530,8 @@ document.addEventListener('DOMContentLoaded', () => {
       opt.textContent = s;
       searchSessionSelect.appendChild(opt);
     });
-    searchSessionSelect.value = sessions.includes(prevSession) ? prevSession : '';
+    searchSessionSelect.value = '';
 
-    const prevClass = searchClassSelect.value;
     searchClassSelect.innerHTML = '<option value="">— শ্রেণি নির্বাচন করুন —</option>';
     classes.forEach((c) => {
       const opt = document.createElement('option');
@@ -6275,9 +6539,9 @@ document.addEventListener('DOMContentLoaded', () => {
       opt.textContent = c;
       searchClassSelect.appendChild(opt);
     });
-    searchClassSelect.value = classes.includes(prevClass) ? prevClass : '';
+    searchClassSelect.value = '';
 
-    populateExamOptions(searchSessionSelect.value, searchClassSelect.value, searchExamSelect);
+    populateExamOptions('', '', searchExamSelect);
   }
 
   async function populateExamOptions(session, className, selectEl) {
@@ -6610,11 +6874,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     transcriptInstName.textContent = currentInstitute.name;
     transcriptInstAddress.textContent = currentInstitute.address;
+    transcriptExamTitle.textContent = data.examName;
 
     tName.textContent    = data.name;
     tRoll.textContent    = data.roll;
     tClass.textContent   = data.className;
-    tExam.textContent    = data.examName;
     tSession.textContent = data.session;
     tTotal.textContent   = data.totalMarks;
     tGpa.textContent     = isAbsentValue(data.grade) ? 'N/A' : Number(data.gpa).toFixed(2);
@@ -6645,13 +6909,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  if (transcriptSearchAgainBtn) {
+    transcriptSearchAgainBtn.addEventListener('click', () => {
+      renderSearchPickers();
+      instPageSearchResult.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
   /* ---------------------------------------------------------
      Fit the printed transcript onto a single A4 page no matter
      how many subjects it has, by measuring its rendered size
      right before printing and scaling it down to fit.
   --------------------------------------------------------- */
-  const PRINT_PAGE_HEIGHT_PX = 1031; // A4 height minus 12mm top+bottom margins, at 96dpi
-  const PRINT_PAGE_WIDTH_PX  = 703;  // A4 width minus 12mm left+right margins, at 96dpi
+  const PRINT_PAGE_HEIGHT_PX = 933; // A4 height minus 25mm top+bottom margins, at 96dpi
+  const PRINT_PAGE_WIDTH_PX  = 605; // A4 width minus 25mm left+right margins, at 96dpi
 
   function fitCardToOnePage(cardId) {
     const card = document.getElementById(cardId);
@@ -7088,6 +7359,206 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (paymentSearchInput) {
     paymentSearchInput.addEventListener('input', renderPaymentTable);
+  }
+
+  /* ---------------------------------------------------------
+     Backup page — search an institute, pick session/class/exam,
+     and download that exam's results as an Excel file.
+  --------------------------------------------------------- */
+  let selectedBackupInstitute = null;
+
+  function renderBackupPage() {
+    if (backupInstituteSearchInput) backupInstituteSearchInput.value = '';
+    selectedBackupInstitute = null;
+    backupOptionsStep.classList.add('d-none');
+    backupInstituteStep.classList.remove('d-none');
+    backupError.classList.add('d-none');
+    backupSuccess.classList.add('d-none');
+    renderBackupInstituteList();
+  }
+
+  function renderBackupInstituteList() {
+    const term = (backupInstituteSearchInput.value || '').trim().toLowerCase();
+
+    backupInstituteEmpty.classList.add('d-none');
+    backupInstitutePrompt.classList.add('d-none');
+    backupInstituteSearchEmpty.classList.add('d-none');
+    backupInstituteTable.classList.add('d-none');
+    backupInstituteTableBody.innerHTML = '';
+
+    if (institutes.length === 0) {
+      backupInstituteEmpty.classList.remove('d-none');
+      return;
+    }
+
+    if (!term) {
+      backupInstitutePrompt.classList.remove('d-none');
+      return;
+    }
+
+    const filtered = institutes.filter((inst) => (inst.name || '').toLowerCase().includes(term));
+
+    if (filtered.length === 0) {
+      backupInstituteSearchEmpty.classList.remove('d-none');
+      return;
+    }
+
+    backupInstituteTable.classList.remove('d-none');
+    filtered.forEach((inst) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${escapeHtml(inst.name)}</td>
+        <td>${escapeHtml(inst.mobile)}</td>
+        <td><span class="site-id-pill">${escapeHtml(inst.siteId)}</span></td>
+        <td>
+          <div class="row-actions">
+            <button type="button" class="btn-cancel-edit" data-select-backup-inst="${escapeHtml(inst.key)}">নির্বাচন করুন</button>
+          </div>
+        </td>
+      `;
+      backupInstituteTableBody.appendChild(tr);
+    });
+
+    backupInstituteTableBody.querySelectorAll('[data-select-backup-inst]').forEach((btn) => {
+      btn.addEventListener('click', () => selectBackupInstitute(btn.dataset.selectBackupInst));
+    });
+  }
+
+  if (backupInstituteSearchInput) {
+    backupInstituteSearchInput.addEventListener('input', renderBackupInstituteList);
+  }
+
+  function selectBackupInstitute(key) {
+    const inst = institutes.find((i) => i.key === key);
+    if (!inst) return;
+
+    selectedBackupInstitute = inst;
+    backupSelectedInstituteName.textContent = inst.name;
+    backupError.classList.add('d-none');
+    backupSuccess.classList.add('d-none');
+    backupInstituteStep.classList.add('d-none');
+    backupOptionsStep.classList.remove('d-none');
+
+    const sessions = inst.sessions || [];
+    const classes  = inst.classes || [];
+
+    backupSessionSelect.innerHTML = '<option value="">— সেশন নির্বাচন করুন —</option>' +
+      sessions.map((s) => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
+    backupClassSelect.innerHTML = '<option value="">— শ্রেণি নির্বাচন করুন —</option>' +
+      classes.map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+    backupExamSelect.innerHTML = '<option value="">— পরীক্ষা নির্বাচন করুন —</option>';
+  }
+
+  if (backupChangeInstituteBtn) {
+    backupChangeInstituteBtn.addEventListener('click', () => {
+      backupOptionsStep.classList.add('d-none');
+      backupInstituteStep.classList.remove('d-none');
+    });
+  }
+
+  async function refreshBackupExamOptions() {
+    const session   = backupSessionSelect.value;
+    const className = backupClassSelect.value;
+
+    backupExamSelect.innerHTML = '<option value="">— পরীক্ষা নির্বাচন করুন —</option>';
+    if (!session || !className || !selectedBackupInstitute) return;
+
+    try {
+      const examsCol = collection(db, 'institutes', selectedBackupInstitute.key, 'exams');
+      const q = query(examsCol, where('session', '==', session), where('className', '==', className));
+      const snap = await getDocs(q);
+      const names = snap.docs.map((d) => d.data().name).sort();
+      backupExamSelect.innerHTML = '<option value="">— পরীক্ষা নির্বাচন করুন —</option>' +
+        names.map((n) => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
+    } catch (err) {
+      console.error('Load exams for backup failed:', err);
+    }
+  }
+
+  if (backupSessionSelect) {
+    backupSessionSelect.addEventListener('change', refreshBackupExamOptions);
+    backupClassSelect.addEventListener('change', refreshBackupExamOptions);
+  }
+
+  if (backupDownloadBtn) {
+    backupDownloadBtn.addEventListener('click', async () => {
+      backupError.classList.add('d-none');
+      backupSuccess.classList.add('d-none');
+
+      const session   = backupSessionSelect.value;
+      const className = backupClassSelect.value;
+      const examName  = backupExamSelect.value;
+
+      if (!selectedBackupInstitute || !session || !className || !examName) {
+        backupError.textContent = 'অনুগ্রহ করে সেশন, শ্রেণি ও পরীক্ষা — তিনটিই নির্বাচন করুন।';
+        backupError.classList.remove('d-none');
+        return;
+      }
+
+      backupDownloadBtn.disabled = true;
+      try {
+        const resultsCol = collection(db, 'institutes', selectedBackupInstitute.key, 'results');
+        const q = query(
+          resultsCol,
+          where('session', '==', session),
+          where('className', '==', className),
+          where('examName', '==', examName)
+        );
+        const snap = await getDocs(q);
+
+        if (snap.empty) {
+          backupError.textContent = 'এই সেশন/শ্রেণি/পরীক্ষার জন্য কোনো ফলাফল পাওয়া যায়নি।';
+          backupError.classList.remove('d-none');
+          return;
+        }
+
+        const rows = snap.docs.map((d) => d.data());
+        rows.sort((a, b) => {
+          const an = parseFloat(a.roll);
+          const bn = parseFloat(b.roll);
+          if (!Number.isNaN(an) && !Number.isNaN(bn)) return an - bn;
+          return String(a.roll).localeCompare(String(b.roll));
+        });
+
+        // Union of subjects across all students, preserving first-seen order.
+        const subjects = [];
+        const seenSubjects = new Set();
+        rows.forEach((r) => {
+          const order = Array.isArray(r.subjectOrder) && r.subjectOrder.length
+            ? r.subjectOrder
+            : Object.keys(r.subjects || {});
+          order.forEach((s) => {
+            if (!seenSubjects.has(s)) { seenSubjects.add(s); subjects.push(s); }
+          });
+        });
+
+        const sheetRows = rows.map((r) => {
+          const row = { 'রোল': r.roll, 'নাম': r.name };
+          subjects.forEach((s) => {
+            row[s] = r.subjects && r.subjects[s] != null ? r.subjects[s] : '';
+          });
+          row['মোট নম্বর'] = r.totalMarks;
+          row['জিপিএ'] = isAbsentValue(r.grade) ? 'N/A' : r.gpa;
+          row['গ্রেড'] = r.grade;
+          return row;
+        });
+
+        const ws = XLSX.utils.json_to_sheet(sheetRows);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'ফলাফল');
+        const fileName = `${selectedBackupInstitute.name}-${session}-${className}-${examName}-ব্যাকআপ.xlsx`;
+        XLSX.writeFile(wb, fileName);
+
+        backupSuccessText.textContent = `"${examName}" পরীক্ষার ${rows.length} জন শিক্ষার্থীর ফলাফল ডাউনলোড হয়েছে।`;
+        backupSuccess.classList.remove('d-none');
+      } catch (err) {
+        console.error('Backup download failed:', err);
+        backupError.textContent = 'ব্যাকআপ ডাউনলোড করা যায়নি। আবার চেষ্টা করুন।';
+        backupError.classList.remove('d-none');
+      } finally {
+        backupDownloadBtn.disabled = false;
+      }
+    });
   }
 
   instituteForm.addEventListener('submit', async (e) => {
