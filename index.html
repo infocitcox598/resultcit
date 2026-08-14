@@ -2035,6 +2035,26 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
   #pubResultBox { display: block !important; }
   #pubResultBox > *:not(#pubTranscriptCard) { display: none !important; }
 
+  /* These containers force min-height:100vh and extra padding on
+     screen — harmless there, but in print that forced height was
+     enough to tip the real content onto a second, nearly-blank
+     page even after everything else was correctly hidden. */
+  .dashboard-view,
+  .public-result-view {
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 0 !important;
+    display: block !important;
+  }
+
+  .dashboard-main {
+    padding: 0 !important;
+  }
+
+  .pub-wrap {
+    max-width: 100% !important;
+  }
+
   #transcriptCard,
   #pubTranscriptCard {
     -webkit-print-color-adjust: exact;
@@ -2305,6 +2325,17 @@ table.tab-sheet-table tbody tr:nth-child(even) {
   #instPageTabulation { display: block !important; }
   #instPageTabulation > *:not(#tabSheetWrap) { display: none !important; }
   #tabSheetWrap > *:not(#tabSheetPages) { display: none !important; }
+
+  .dashboard-view {
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 0 !important;
+    display: block !important;
+  }
+
+  .dashboard-main {
+    padding: 0 !important;
+  }
 
   #tabSheetPages,
   #tabSheetPages * {
