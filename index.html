@@ -2014,7 +2014,9 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
   .sidebar-overlay,
   .topbar,
   #confirmModalOverlay,
-  #resultEditModalOverlay {
+  #resultEditModalOverlay,
+  #loginView,
+  .page-footer {
     display: none !important;
   }
 
@@ -2038,9 +2040,20 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
   /* These containers force min-height:100vh and extra padding on
      screen — harmless there, but in print that forced height was
      enough to tip the real content onto a second, nearly-blank
-     page even after everything else was correctly hidden. */
-  .dashboard-view,
-  .public-result-view {
+     page even after everything else was correctly hidden.
+     IMPORTANT: #dashboardView and #instituteDashboardView both
+     share the class "dashboard-view", but only ONE of them is
+     ever the active view (the other sits hidden with "d-none").
+     The old rule below matched the class alone, so it forced
+     BOTH containers to display:block during print — silently
+     un-hiding the inactive one's leftover markup (its own
+     header/footer chrome) and adding a phantom page either
+     before or after the real transcript depending on which
+     container came first in the document. Scoping with
+     :not(.d-none) makes sure only the container that's actually
+     showing gets reset, and the inactive one stays hidden. */
+  .dashboard-view:not(.d-none),
+  .public-result-view:not(.d-none) {
     min-height: 0 !important;
     height: auto !important;
     padding: 0 !important;
