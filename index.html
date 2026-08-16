@@ -1858,12 +1858,12 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
 .transcript-card {
   background: #ffffff;
   color: #111827;
-  border-radius: 6px;
-  border: 1px solid #D1D5DB;
+  border-radius: 10px;
+  border: 1px solid #DCE1E6;
   overflow: hidden;
   max-width: 210mm;
   margin: 0 auto;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.10);
   font-family: 'Noto Sans Bengali', 'Poppins', sans-serif;
 }
 
@@ -1873,64 +1873,83 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
   height: auto;
 }
 
+/* Green header, in the style of an official board-of-education
+   result sheet — a solid dark-green bar with the institute name,
+   plus a slim lighter-green accent strip underneath it. Only
+   shown when the institute hasn't uploaded its own banner image
+   (a full custom banner already carries its own branding/colors,
+   so we don't tint it). */
 .transcript-header {
-  background: #14245C;
+  background: #0E7C3A;
   color: #FFFFFF;
   text-align: center;
-  padding: 18px 20px;
+  padding: 22px 24px 18px;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
   color-adjust: exact;
 }
 
 .transcript-header h2 {
-  margin: 0 0 4px;
-  font-size: 1.2rem;
+  margin: 0 0 5px;
+  font-size: 1.3rem;
   font-weight: 700;
   color: #FFFFFF;
 }
 
 .transcript-header p {
   margin: 0;
-  font-size: 0.8rem;
-  color: #C7D2FE;
+  font-size: 0.86rem;
+  color: #D6F3DF;
+}
+
+.transcript-header-accent {
+  height: 8px;
+  background: #7FCB8F;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  color-adjust: exact;
 }
 
 .transcript-section-title {
-  font-size: 0.88rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: #111827;
   text-align: center;
-  border-bottom: 1px solid #111827;
-  padding: 16px 20px 8px;
-  margin: 0 20px;
+  border-bottom: 2px solid #111827;
+  padding: 22px 24px 10px;
+  margin: 0 24px;
 }
 
 .transcript-subjects-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.86rem;
+  font-size: 0.9rem;
 }
 
+/* Borderless, spacious key/value rows — matches the airy,
+   form-like info block in the reference design instead of a
+   dense bordered grid. */
 .transcript-info-table {
-  margin: 14px 20px;
-  width: calc(100% - 40px);
+  margin: 16px 24px;
+  width: calc(100% - 48px);
   border-collapse: collapse;
-  font-size: 0.86rem;
+  font-size: 0.9rem;
   table-layout: fixed;
-  border: 1px solid #9CA3AF;
 }
 
 .transcript-info-table td {
-  padding: 7px 10px;
-  border: 1px solid #9CA3AF;
+  padding: 9px 10px;
+  border-bottom: 1px solid #EDEFF2;
   word-break: break-word;
+}
+
+.transcript-info-table tr:last-child td {
+  border-bottom: none;
 }
 
 .transcript-info-table .ti-label {
   width: 18%;
-  background: #F3F4F6;
-  color: #374151;
+  color: #4B5563;
   font-weight: 700;
 }
 
@@ -1941,7 +1960,7 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
 
 .transcript-info-table .ti-value.ti-strong {
   font-weight: 700;
-  color: #111827;
+  color: #0E7C3A;
 }
 
 /* This table intentionally keeps its row/column layout at every
@@ -1949,38 +1968,38 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
    column, so the result looks the same everywhere it's viewed. */
 
 .transcript-subjects-table {
-  margin: 0 20px 16px;
-  width: calc(100% - 40px);
-  border: 1px solid #9CA3AF;
+  margin: 4px 24px 18px;
+  width: calc(100% - 48px);
+  border-top: 1px solid #E2E5E9;
 }
 
 .transcript-subjects-table th {
-  background: #F3F4F6;
+  background: #EEF1F4;
   color: #111827;
   text-align: left;
-  padding: 8px 12px;
-  font-size: 0.8rem;
-  border: 1px solid #9CA3AF;
+  padding: 10px 14px;
+  font-size: 0.84rem;
+  border-bottom: 1px solid #E2E5E9;
 }
 
 .transcript-subjects-table td {
-  padding: 7px 12px;
-  border: 1px solid #9CA3AF;
+  padding: 9px 14px;
+  border-bottom: 1px solid #EDEFF2;
   color: #0F172A;
 }
 
 .transcript-subjects-table tbody tr:nth-child(even) {
-  background: #F9FAFB;
+  background: #F7F9FA;
 }
 
 .transcript-exam-title {
   text-align: center;
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 1.02rem;
   color: #111827;
-  padding: 12px 20px 10px;
-  border-bottom: 1px solid #111827;
-  margin: 0 20px;
+  padding: 18px 24px 12px;
+  border-bottom: 2px solid #111827;
+  margin: 0 24px;
 }
 
 .transcript-print-footer {
@@ -2169,9 +2188,9 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
     justify-content: center;
     align-items: center;
     gap: 8px;
-    margin: 12px 16px 0 !important;
-    padding-top: 8px;
-    border-top: 1px solid #E2E8F0;
+    margin: 14px 16px 0 !important;
+    padding-top: 10px;
+    border-top: 2px solid #7FCB8F;
     font-size: 0.68rem;
     color: #64748B;
   }
@@ -2622,6 +2641,7 @@ table.tab-sheet-table tbody tr:nth-child(even) {
             <h2 id="pubTranscriptInstName">প্রতিষ্ঠানের নাম</h2>
             <p id="pubTranscriptInstAddress">ঠিকানা</p>
           </div>
+          <div class="transcript-header-accent" id="pubTranscriptHeaderAccent"></div>
 
           <div class="transcript-exam-title" id="pubTranscriptExamTitle">&mdash;</div>
 
@@ -3946,6 +3966,7 @@ table.tab-sheet-table tbody tr:nth-child(even) {
               <h2 id="transcriptInstName">প্রতিষ্ঠানের নাম</h2>
               <p id="transcriptInstAddress">ঠিকানা</p>
             </div>
+            <div class="transcript-header-accent" id="transcriptHeaderAccent"></div>
 
             <div class="transcript-exam-title" id="transcriptExamTitle">&mdash;</div>
 
@@ -4526,22 +4547,59 @@ const INSTITUTES_COL = collection(db, "institutes");
 
 /* ---------------------------------------------------------
    Shared by both the institute and public transcript print
-   buttons. However many subjects an institute has, the
-   transcript must still print on a single A4 page — so right
-   before print, count the actual subject rows and drop the
-   card's font/padding down a notch (or two) if there are more
-   than the base sizing comfortably fits.
+   buttons. However tall the institute's banner image is, and
+   however many subjects it has, the transcript must still
+   print on a single A4 page. The banner can't be cropped and
+   must always span the full card width, so it can't be shrunk
+   without cropping either — the only thing left to adjust is
+   how much room the header text and tables take up. This
+   estimates, from the banner's own aspect ratio and the actual
+   subject-row count, whether the normal sizing already fits;
+   if not it steps down to a more compact density, then to the
+   tightest one.
 --------------------------------------------------------- */
-function applyTranscriptPrintDensity(cardEl, tableEl) {
+function applyTranscriptPrintDensity(cardEl, tableEl, bannerImgEl) {
   if (!cardEl) return;
   cardEl.classList.remove('transcript-density-compact', 'transcript-density-tight');
+
   const body = tableEl && tableEl.tBodies && tableEl.tBodies[0];
   const rowCount = body ? body.rows.length : 0;
-  if (rowCount > 20) {
-    cardEl.classList.add('transcript-density-tight');
-  } else if (rowCount > 14) {
-    cardEl.classList.add('transcript-density-compact');
+
+  // Usable A4 area after the 25mm @page margins on every side.
+  const PAGE_WIDTH_MM = 160;   // 210mm - 2*25mm
+  const PAGE_HEIGHT_MM = 247;  // 297mm - 2*25mm
+
+  // The banner always renders at full card width with height:auto,
+  // so its printed height is driven entirely by its own aspect
+  // ratio — a wide short strip costs little vertical space, a
+  // tall/stacked logo banner costs a lot.
+  let bannerHeightMm = 0;
+  if (bannerImgEl && !bannerImgEl.classList.contains('d-none') &&
+      bannerImgEl.naturalWidth && bannerImgEl.naturalHeight) {
+    bannerHeightMm = PAGE_WIDTH_MM * (bannerImgEl.naturalHeight / bannerImgEl.naturalWidth);
   }
+
+  // Rough budget (in mm) for everything that isn't the banner or
+  // the subject rows — header text block, both section titles,
+  // the student-info table, the subject-table's own header row,
+  // and the print footer — plus the per-row cost of the subject
+  // table, at each density level (each level's CSS shrinks both).
+  const DENSITY = {
+    normal:  { fixedMm: 99, rowMm: 7.0 },
+    compact: { fixedMm: 87, rowMm: 5.8 },
+    tight:   { fixedMm: 75, rowMm: 4.5 }
+  };
+
+  const fits = (density) => {
+    const d = DENSITY[density];
+    return bannerHeightMm + d.fixedMm + d.rowMm * rowCount <= PAGE_HEIGHT_MM;
+  };
+
+  if (fits('normal')) return;
+  cardEl.classList.add('transcript-density-compact');
+  if (fits('compact')) return;
+  cardEl.classList.remove('transcript-density-compact');
+  cardEl.classList.add('transcript-density-tight');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -4777,13 +4835,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function pubRenderResult(r) {
+      const pubTranscriptHeaderAccent = document.getElementById('pubTranscriptHeaderAccent');
       if (pubInstitute.bannerUrl) {
         pubTranscriptBannerImg.src = pubInstitute.bannerUrl;
         pubTranscriptBannerImg.classList.remove('d-none');
         pubTranscriptTextHeader.classList.add('d-none');
+        if (pubTranscriptHeaderAccent) pubTranscriptHeaderAccent.classList.add('d-none');
       } else {
         pubTranscriptBannerImg.classList.add('d-none');
         pubTranscriptTextHeader.classList.remove('d-none');
+        if (pubTranscriptHeaderAccent) pubTranscriptHeaderAccent.classList.remove('d-none');
       }
 
       pubTranscriptInstName.textContent = pubInstitute.name;
@@ -4823,7 +4884,8 @@ document.addEventListener('DOMContentLoaded', () => {
       pubTranscriptPrintBtn.addEventListener('click', () => {
         applyTranscriptPrintDensity(
           document.getElementById('pubTranscriptCard'),
-          document.getElementById('pubTSubjectsTable')
+          document.getElementById('pubTSubjectsTable'),
+          document.getElementById('pubTranscriptBannerImg')
         );
         window.print();
       });
@@ -6963,13 +7025,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderTranscript(data) {
+    const transcriptHeaderAccent = document.getElementById('transcriptHeaderAccent');
     if (currentInstitute.bannerUrl) {
       transcriptBannerImg.src = currentInstitute.bannerUrl;
       transcriptBannerImg.classList.remove('d-none');
       transcriptTextHeader.classList.add('d-none');
+      if (transcriptHeaderAccent) transcriptHeaderAccent.classList.add('d-none');
     } else {
       transcriptBannerImg.classList.add('d-none');
       transcriptTextHeader.classList.remove('d-none');
+      if (transcriptHeaderAccent) transcriptHeaderAccent.classList.remove('d-none');
     }
 
     transcriptInstName.textContent = currentInstitute.name;
@@ -7007,7 +7072,8 @@ document.addEventListener('DOMContentLoaded', () => {
     transcriptPrintBtn.addEventListener('click', () => {
       applyTranscriptPrintDensity(
         document.getElementById('transcriptCard'),
-        document.getElementById('tSubjectsTable')
+        document.getElementById('tSubjectsTable'),
+        document.getElementById('transcriptBannerImg')
       );
       window.print();
     });
