@@ -2043,11 +2043,17 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
      view is active. Everything below only ever uses display:none
      or display:block (never "revert") because some Android print
      engines don't support the revert keyword, which silently left
-     the whole page blank when we relied on it. */
+     the whole page blank when we relied on it.
+     .profile-banner sits above the .dashboard-page sections (not
+     inside them), so ".dashboard-page{display:none}" below never
+     touched it — it was rendering as a stray first-page block
+     before the actual transcript, which is what pushed the real
+     content onto a spurious page 2 (or 3). */
   .bg-layer,
   .sidebar,
   .sidebar-overlay,
   .topbar,
+  .profile-banner,
   #confirmModalOverlay,
   #resultEditModalOverlay,
   #loginView,
