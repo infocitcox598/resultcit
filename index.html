@@ -2012,12 +2012,28 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
    the page's layout flow — otherwise the rest of the dashboard
    (sidebar, other pages, modals) still occupies vertical space
    even while invisible, and that phantom height was pushing the
-   transcript onto a spurious blank second printed page. */
+   transcript onto a spurious blank second printed page.
+   NAMED PAGE: this stylesheet also has a second @page rule
+   further down for the (landscape, 10mm-margin) tabulation
+   sheet. Unnamed @page rules aren't scoped to specific content —
+   the browser applies whichever one comes LAST in the sheet to
+   every print job on this document, portrait or not. That silently
+   made every transcript print under the tabulation sheet's
+   landscape/10mm page box instead of this one, which is what kept
+   pushing it onto a second page. Naming both pages and tagging
+   each printable root with the matching `page:` property fixes
+   that ambiguity for good. */
 @media print {
-  @page {
+  @page transcript-page {
     size: A4;
     margin: 25mm;
   }
+
+  #transcriptWrap,
+  #pubResultBox {
+    page: transcript-page;
+  }
+
 
   html, body {
     background: #fff !important;
@@ -2199,6 +2215,22 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
     color: #CBD5E1;
   }
 
+  /* Guards against the print engine breaking a table row (or the
+     header/section-title blocks) across two pages — that kind of
+     split can leave a large unused gap at the bottom of page 1
+     while still pushing content onto page 2. Everything here is
+     small enough that it should always stay intact as one unit. */
+  .transcript-info-table tr,
+  .transcript-subjects-table tr,
+  .transcript-header,
+  .transcript-header-accent,
+  .transcript-exam-title,
+  .transcript-section-title {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+
   /* Fallback for institutes with a lot of subjects: the base
      sizes above comfortably fit ~15-16 subject rows on one A4
      page, but beyond that these two density levels shrink the
@@ -2226,6 +2258,83 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
   .transcript-density-tight .transcript-subjects-table th { padding: 4px 7px !important; font-size: 0.64rem !important; }
   .transcript-density-tight .transcript-subjects-table td { padding: 3px 7px !important; }
 }
+
+/* =========================================================
+   OFF-SCREEN PRINT-SIZE MEASUREMENT
+   Mirrors the .transcript-* sizing rules from the @media print
+   block above, but as plain (non-media-gated) classes. Before
+   printing, JS clones the transcript card into a hidden probe
+   div fixed at the exact print content width (160mm = A4 minus
+   the 25mm @page margins) and measures its real rendered height
+   with these rules applied — this is what decides which density
+   level (normal/compact/tight) actually gets used for the real
+   print, instead of guessing from row counts. Keep this in sync
+   with the @media print rules above if those ever change.
+   ========================================================= */
+.transcript-measure-probe {
+  position: absolute;
+  left: -99999px;
+  top: 0;
+  width: 160mm;
+  visibility: hidden;
+}
+
+.transcript-measure {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  border: none !important;
+}
+
+.transcript-measure .transcript-banner-img {
+  width: 100% !important;
+  height: auto !important;
+  object-fit: initial !important;
+}
+
+.transcript-measure .transcript-header { padding: 14px 18px !important; }
+.transcript-measure .transcript-header h2 { font-size: 1.3rem !important; margin: 0 0 4px !important; }
+.transcript-measure .transcript-header p { font-size: 0.85rem !important; }
+.transcript-measure .transcript-exam-title { font-size: 1rem !important; padding: 10px 16px 8px !important; margin: 0 16px !important; }
+.transcript-measure .transcript-section-title { font-size: 0.95rem !important; padding: 12px 0 6px !important; margin: 0 16px !important; }
+.transcript-measure .transcript-info-table { margin: 10px 16px !important; width: calc(100% - 32px) !important; font-size: 0.86rem !important; }
+.transcript-measure .transcript-info-table td { padding: 6px 9px !important; }
+.transcript-measure .transcript-subjects-table { font-size: 0.84rem !important; margin: 0 16px 10px !important; width: calc(100% - 32px) !important; }
+.transcript-measure .transcript-subjects-table th { padding: 6px 10px !important; font-size: 0.8rem !important; }
+.transcript-measure .transcript-subjects-table td { padding: 5px 10px !important; }
+.transcript-measure .transcript-print-footer {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 16px 0 !important;
+  padding-top: 10px;
+  border-top: 2px solid #7FCB8F;
+  font-size: 0.68rem;
+  color: #64748B;
+}
+
+.transcript-measure.transcript-density-compact .transcript-header h2 { font-size: 1.15rem !important; }
+.transcript-measure.transcript-density-compact .transcript-header p { font-size: 0.78rem !important; }
+.transcript-measure.transcript-density-compact .transcript-exam-title { font-size: 0.9rem !important; padding: 8px 16px 6px !important; }
+.transcript-measure.transcript-density-compact .transcript-section-title { font-size: 0.85rem !important; padding: 9px 0 5px !important; }
+.transcript-measure.transcript-density-compact .transcript-info-table { font-size: 0.78rem !important; margin: 8px 16px !important; }
+.transcript-measure.transcript-density-compact .transcript-info-table td { padding: 5px 8px !important; }
+.transcript-measure.transcript-density-compact .transcript-subjects-table { font-size: 0.76rem !important; }
+.transcript-measure.transcript-density-compact .transcript-subjects-table th { padding: 5px 8px !important; font-size: 0.72rem !important; }
+.transcript-measure.transcript-density-compact .transcript-subjects-table td { padding: 4px 8px !important; }
+
+.transcript-measure.transcript-density-tight .transcript-header h2 { font-size: 1rem !important; }
+.transcript-measure.transcript-density-tight .transcript-header p { font-size: 0.7rem !important; }
+.transcript-measure.transcript-density-tight .transcript-exam-title { font-size: 0.8rem !important; padding: 6px 16px 5px !important; }
+.transcript-measure.transcript-density-tight .transcript-section-title { font-size: 0.76rem !important; padding: 7px 0 4px !important; }
+.transcript-measure.transcript-density-tight .transcript-info-table { font-size: 0.7rem !important; margin: 6px 16px !important; }
+.transcript-measure.transcript-density-tight .transcript-info-table td { padding: 4px 7px !important; }
+.transcript-measure.transcript-density-tight .transcript-subjects-table { font-size: 0.68rem !important; }
+.transcript-measure.transcript-density-tight .transcript-subjects-table th { padding: 4px 7px !important; font-size: 0.64rem !important; }
+.transcript-measure.transcript-density-tight .transcript-subjects-table td { padding: 3px 7px !important; }
 
 /* =========================================================
    TABULATION SHEET (A4 landscape, multi-page, printable)
@@ -2367,9 +2476,13 @@ table.tab-sheet-table tbody tr:nth-child(even) {
 }
 
 @media print {
-  @page {
+  @page tab-sheet-page {
     size: A4 landscape;
     margin: 10mm;
+  }
+
+  #tabSheetWrap {
+    page: tab-sheet-page;
   }
 
   html, body {
@@ -4549,57 +4662,45 @@ const INSTITUTES_COL = collection(db, "institutes");
    Shared by both the institute and public transcript print
    buttons. However tall the institute's banner image is, and
    however many subjects it has, the transcript must still
-   print on a single A4 page. The banner can't be cropped and
-   must always span the full card width, so it can't be shrunk
-   without cropping either — the only thing left to adjust is
-   how much room the header text and tables take up. This
-   estimates, from the banner's own aspect ratio and the actual
-   subject-row count, whether the normal sizing already fits;
-   if not it steps down to a more compact density, then to the
-   tightest one.
+   print on a single A4 page. Rather than estimate this from
+   row counts and guessed paragraph heights (which was still
+   getting it wrong for unusually tall banners), this clones
+   the actual card into a hidden probe fixed at the real print
+   content width and measures it directly with the same rules
+   the @media print stylesheet uses — see the
+   .transcript-measure-probe / .transcript-measure rules.
 --------------------------------------------------------- */
 function applyTranscriptPrintDensity(cardEl, tableEl, bannerImgEl) {
   if (!cardEl) return;
   cardEl.classList.remove('transcript-density-compact', 'transcript-density-tight');
 
-  const body = tableEl && tableEl.tBodies && tableEl.tBodies[0];
-  const rowCount = body ? body.rows.length : 0;
+  const PAGE_HEIGHT_MM = 247; // 297mm A4 - 2*25mm @page margin
+  const usablePx = PAGE_HEIGHT_MM * (96 / 25.4);
 
-  // Usable A4 area after the 25mm @page margins on every side.
-  const PAGE_WIDTH_MM = 160;   // 210mm - 2*25mm
-  const PAGE_HEIGHT_MM = 247;  // 297mm - 2*25mm
+  const probe = document.createElement('div');
+  probe.className = 'transcript-measure-probe';
+  const clone = cardEl.cloneNode(true);
+  clone.removeAttribute('id');
+  clone.classList.add('transcript-measure');
+  clone.classList.remove('transcript-density-compact', 'transcript-density-tight');
+  probe.appendChild(clone);
+  document.body.appendChild(probe);
 
-  // The banner always renders at full card width with height:auto,
-  // so its printed height is driven entirely by its own aspect
-  // ratio — a wide short strip costs little vertical space, a
-  // tall/stacked logo banner costs a lot.
-  let bannerHeightMm = 0;
-  if (bannerImgEl && !bannerImgEl.classList.contains('d-none') &&
-      bannerImgEl.naturalWidth && bannerImgEl.naturalHeight) {
-    bannerHeightMm = PAGE_WIDTH_MM * (bannerImgEl.naturalHeight / bannerImgEl.naturalWidth);
+  let density = 'normal';
+  if (clone.getBoundingClientRect().height > usablePx) {
+    clone.classList.add('transcript-density-compact');
+    density = 'compact';
+    if (clone.getBoundingClientRect().height > usablePx) {
+      clone.classList.remove('transcript-density-compact');
+      clone.classList.add('transcript-density-tight');
+      density = 'tight';
+    }
   }
 
-  // Rough budget (in mm) for everything that isn't the banner or
-  // the subject rows — header text block, both section titles,
-  // the student-info table, the subject-table's own header row,
-  // and the print footer — plus the per-row cost of the subject
-  // table, at each density level (each level's CSS shrinks both).
-  const DENSITY = {
-    normal:  { fixedMm: 99, rowMm: 7.0 },
-    compact: { fixedMm: 87, rowMm: 5.8 },
-    tight:   { fixedMm: 75, rowMm: 4.5 }
-  };
+  document.body.removeChild(probe);
 
-  const fits = (density) => {
-    const d = DENSITY[density];
-    return bannerHeightMm + d.fixedMm + d.rowMm * rowCount <= PAGE_HEIGHT_MM;
-  };
-
-  if (fits('normal')) return;
-  cardEl.classList.add('transcript-density-compact');
-  if (fits('compact')) return;
-  cardEl.classList.remove('transcript-density-compact');
-  cardEl.classList.add('transcript-density-tight');
+  if (density === 'compact') cardEl.classList.add('transcript-density-compact');
+  else if (density === 'tight') cardEl.classList.add('transcript-density-tight');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
