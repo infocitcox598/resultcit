@@ -2022,18 +2022,22 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
    landscape/10mm page box instead of this one, which is what kept
    pushing it onto a second page. Naming both pages and tagging
    each printable root with the matching `page:` property fixes
-   that ambiguity for good. */
+   that ambiguity for good. IMPORTANT: the `page:` property isn't
+   inherited, and assigning it only on a deeply-nested element
+   (like #transcriptWrap) forces a break right before it — because
+   every un-named ancestor above it is still on the browser's
+   default/ambient page, so switching to the named page counts as
+   a page-type change and starts a fresh page, leaving an empty
+   page 1 before the real content. JS sets `page` directly on
+   <html> right before each print instead (see
+   applyTranscriptPrintDensity's caller and the tab-sheet print
+   handler), so the named page is active from the very first box
+   with no internal transition. */
 @media print {
   @page transcript-page {
     size: A4;
     margin: 25mm;
   }
-
-  #transcriptWrap,
-  #pubResultBox {
-    page: transcript-page;
-  }
-
 
   html, body {
     background: #fff !important;
@@ -2487,9 +2491,10 @@ table.tab-sheet-table tbody tr:nth-child(even) {
     margin: 10mm;
   }
 
-  #tabSheetWrap {
-    page: tab-sheet-page;
-  }
+  /* Set via JS on <html> right before print instead of here —
+     see the note above the transcript-page rule for why assigning
+     `page:` only on this nested wrapper forces a spurious blank
+     leading page. */
 
   html, body {
     background: #fff !important;
@@ -4665,6 +4670,24 @@ const ADMIN_DOC_REF = doc(db, "settings", "superAdmin");
 const INSTITUTES_COL = collection(db, "institutes");
 
 /* ---------------------------------------------------------
+   This document defines two named @page rules (transcript-page:
+   portrait/25mm, tab-sheet-page: landscape/10mm) so the two very
+   different printable views don't fight over one unnamed @page
+   rule. The `page` CSS property picks which one applies — but
+   it isn't inherited, so it has to be set on <html> itself right
+   before printing rather than on some element deep inside the
+   printed content: assigning it only to a nested wrapper would
+   force an unwanted page break right before that wrapper (every
+   un-named ancestor above it is still on the browser's ambient
+   default page, so switching down at that point counts as a
+   page-type change and starts a fresh page — leaving an empty
+   page 1 in front of the real content).
+--------------------------------------------------------- */
+function setPrintPageName(name) {
+  document.documentElement.style.setProperty('page', name);
+}
+
+/* ---------------------------------------------------------
    Shared by both the institute and public transcript print
    buttons. However tall the institute's banner image is, and
    however many subjects it has, the transcript must still
@@ -4994,6 +5017,7 @@ document.addEventListener('DOMContentLoaded', () => {
           document.getElementById('pubTSubjectsTable'),
           document.getElementById('pubTranscriptBannerImg')
         );
+        setPrintPageName('transcript-page');
         window.print();
       });
     }
@@ -7182,6 +7206,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('tSubjectsTable'),
         document.getElementById('transcriptBannerImg')
       );
+      setPrintPageName('transcript-page');
       window.print();
     });
   }
@@ -8467,6 +8492,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (tabPrintBtn) {
     tabPrintBtn.addEventListener('click', () => {
+      setPrintPageName('tab-sheet-page');
       window.print();
     });
   }
