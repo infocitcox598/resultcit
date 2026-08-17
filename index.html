@@ -8669,7 +8669,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const budgetPx = mmToPx(PAGE_CONTENT_HEIGHT_MM);
 
     const probe = document.createElement('div');
-    probe.style.cssText = 'position:absolute; left:-99999px; top:0; width:297mm; box-sizing:border-box; padding:10mm 12mm; visibility:hidden;';
+    // NOTE: min-height:0 here is essential — the .tab-sheet-page
+    // class this reuses (for identical padding/width/table styling)
+    // also carries min-height:210mm for the real printed pages,
+    // which would otherwise pin scrollHeight to that fixed value
+    // regardless of actual content and make every capacity
+    // calculation come out as "1 row fits" (which is exactly the
+    // per-student-page-each bug this was fixed to prevent).
+    probe.style.cssText = 'position:absolute; left:-99999px; top:0; width:297mm; min-height:0 !important; box-sizing:border-box; padding:10mm 12mm; visibility:hidden;';
     probe.className = 'tab-sheet-page';
     document.body.appendChild(probe);
 
