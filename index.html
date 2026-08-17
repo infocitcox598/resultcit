@@ -2377,14 +2377,6 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
   margin-bottom: 12px;
 }
 
-/* Continuation pages (2+) only need the roll/subject headers to
-   stay readable — the institute name doesn't need to repeat on
-   every sheet, so those pages get a shorter, plainer meta line. */
-.tab-sheet-head.tab-sheet-head--continued {
-  padding-bottom: 5px;
-  margin-bottom: 8px;
-}
-
 .tab-sheet-head h2 {
   font-size: 1.1rem;
   font-weight: 700;
@@ -8532,13 +8524,101 @@ document.addEventListener('DOMContentLoaded', () => {
       if (r.grade !== 'F') passCount += 1;
     });
     const passRate = gradedTotal > 0 ? ((passCount / gradedTotal) * 100).toFixed(2) : '0.00';
+    const absentCount = rows.length - gradedTotal;
 
-    // Paginate: 16 students on page 1, 20 on every page after.
+    const subjectHeadHtml = subjects.map((s) => `<th>${escapeHtml(s)}</th>`).join('');
+
+    const rowHtml = (r) => {
+      const cells = subjects.map((s) => {
+        const mark = r.subjects && r.subjects[s] != null ? r.subjects[s] : '-';
+        return `<td>${escapeHtml(mark)}</td>`;
+      }).join('');
+      return `
+        <tr>
+          <td>${escapeHtml(r.roll)}</td>
+          <td class="tab-cell-name">${escapeHtml(r.name)}</td>
+          ${cells}
+          <td>${escapeHtml(r.totalMarks)}</td>
+          <td>${escapeHtml(isAbsentValue(r.grade) ? ABSENT_MARK : Number(r.gpa).toFixed(2))}</td>
+          <td>${escapeHtml(r.grade)}</td>
+        </tr>
+      `;
+    };
+
+    const summaryHtml = `
+      <div class="tab-sheet-summary tab-sheet-summary--top">
+        <h4>ফলাফলের সারসংক্ষেপ</h4>
+        <div class="tab-summary-row">
+          <div class="tab-summary-pill tab-pass-rate">
+            <span>পাশের হার</span>
+            <b>${escapeHtml(passRate)}%</b>
+          </div>
+          ${TAB_GRADE_KEYS.map((g) => `
+            <div class="tab-summary-pill">
+              <span>${escapeHtml(g)}</span>
+              <b>${escapeHtml(gradeCounts[g])}</b>
+            </div>
+          `).join('')}
+          ${absentCount > 0 ? `
+            <div class="tab-summary-pill">
+              <span>অনুপস্থিত</span>
+              <b>${escapeHtml(absentCount)}</b>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    `;
+
+    const colgroupHtml = `
+      <colgroup>
+        <col class="tab-col-roll">
+        <col>
+        ${subjects.map(() => '<col>').join('')}
+        <col>
+        <col>
+        <col>
+      </colgroup>
+    `;
+
+    const theadHtml = `
+      <thead>
+        <tr>
+          <th>রোল</th>
+          <th>নাম</th>
+          ${subjectHeadHtml}
+          <th>মোট</th>
+          <th>জিপিএ</th>
+          <th>গ্রেড</th>
+        </tr>
+      </thead>
+    `;
+
+    // Page 1 carries the institute name, exam/class/session line,
+    // and the result summary; every page after that is the mark
+    // sheet only — just the student rows, nothing repeated at the
+    // top. How many students actually fit on each page is measured
+    // directly (same off-screen-probe approach used for the
+    // transcript's print sizing) rather than assumed, since the
+    // available room differs between page 1 (head+summary eat into
+    // it) and later pages (table only, more room for rows).
+    const { rowsOnPage1, rowsOnContinuationPage } = measureTabSheetPageCapacity({
+      headHtml: `
+        <div class="tab-sheet-head">
+          <h2>${escapeHtml(currentInstitute.name)}</h2>
+          <p class="tab-sheet-meta">${escapeHtml(examName)} &nbsp;•&nbsp; শ্রেণি: ${escapeHtml(className)} &nbsp;•&nbsp; সেশন: ${escapeHtml(session)}</p>
+        </div>
+      `,
+      summaryHtml,
+      colgroupHtml,
+      theadHtml,
+      sampleRowHtml: rowHtml(rows[0] || { roll: '000', name: 'নমুনা', totalMarks: '000', gpa: 0, grade: 'A+', subjects: {} })
+    });
+
     const pages = [];
     let i = 0;
     let first = true;
     while (i < rows.length) {
-      const size = first ? 16 : 20;
+      const size = first ? Math.max(1, rowsOnPage1) : Math.max(1, rowsOnContinuationPage);
       pages.push(rows.slice(i, i + size));
       i += size;
       first = false;
@@ -8549,86 +8629,19 @@ document.addEventListener('DOMContentLoaded', () => {
       const page = document.createElement('div');
       page.className = 'tab-sheet-page';
 
-      const subjectHeadHtml = subjects.map((s) => `<th>${escapeHtml(s)}</th>`).join('');
-
-      const rowsHtml = pageRows.map((r) => {
-        const cells = subjects.map((s) => {
-          const mark = r.subjects && r.subjects[s] != null ? r.subjects[s] : '-';
-          return `<td>${escapeHtml(mark)}</td>`;
-        }).join('');
-        return `
-          <tr>
-            <td>${escapeHtml(r.roll)}</td>
-            <td class="tab-cell-name">${escapeHtml(r.name)}</td>
-            ${cells}
-            <td>${escapeHtml(r.totalMarks)}</td>
-            <td>${escapeHtml(isAbsentValue(r.grade) ? ABSENT_MARK : Number(r.gpa).toFixed(2))}</td>
-            <td>${escapeHtml(r.grade)}</td>
-          </tr>
-        `;
-      }).join('');
-
-      const absentCount = rows.length - gradedTotal;
-      const summaryHtml = pageIndex === 0 ? `
-        <div class="tab-sheet-summary tab-sheet-summary--top">
-          <h4>ফলাফলের সারসংক্ষেপ</h4>
-          <div class="tab-summary-row">
-            <div class="tab-summary-pill tab-pass-rate">
-              <span>পাশের হার</span>
-              <b>${escapeHtml(passRate)}%</b>
-            </div>
-            ${TAB_GRADE_KEYS.map((g) => `
-              <div class="tab-summary-pill">
-                <span>${escapeHtml(g)}</span>
-                <b>${escapeHtml(gradeCounts[g])}</b>
-              </div>
-            `).join('')}
-            ${absentCount > 0 ? `
-              <div class="tab-summary-pill">
-                <span>অনুপস্থিত</span>
-                <b>${escapeHtml(absentCount)}</b>
-              </div>
-            ` : ''}
-          </div>
-        </div>
-      ` : '';
-
-      // Institute name only needs to appear once — repeating it at
-      // the top of every continuation page just eats vertical space
-      // subject/roll columns could use instead.
-      const headHtml = pageIndex === 0 ? `
-        <div class="tab-sheet-head">
-          <h2>${escapeHtml(currentInstitute.name)}</h2>
-          <p class="tab-sheet-meta">${escapeHtml(examName)} &nbsp;•&nbsp; শ্রেণি: ${escapeHtml(className)} &nbsp;•&nbsp; সেশন: ${escapeHtml(session)}</p>
-        </div>
-      ` : `
-        <div class="tab-sheet-head tab-sheet-head--continued">
-          <p class="tab-sheet-meta">${escapeHtml(examName)} &nbsp;•&nbsp; শ্রেণি: ${escapeHtml(className)} &nbsp;•&nbsp; সেশন: ${escapeHtml(session)}</p>
-        </div>
-      `;
+      const rowsHtml = pageRows.map(rowHtml).join('');
 
       page.innerHTML = `
-        ${headHtml}
-        ${summaryHtml}
+        ${pageIndex === 0 ? `
+          <div class="tab-sheet-head">
+            <h2>${escapeHtml(currentInstitute.name)}</h2>
+            <p class="tab-sheet-meta">${escapeHtml(examName)} &nbsp;•&nbsp; শ্রেণি: ${escapeHtml(className)} &nbsp;•&nbsp; সেশন: ${escapeHtml(session)}</p>
+          </div>
+          ${summaryHtml}
+        ` : ''}
         <table class="tab-sheet-table">
-          <colgroup>
-            <col class="tab-col-roll">
-            <col>
-            ${subjects.map(() => '<col>').join('')}
-            <col>
-            <col>
-            <col>
-          </colgroup>
-          <thead>
-            <tr>
-              <th>রোল</th>
-              <th>নাম</th>
-              ${subjectHeadHtml}
-              <th>মোট</th>
-              <th>জিপিএ</th>
-              <th>গ্রেড</th>
-            </tr>
-          </thead>
+          ${colgroupHtml}
+          ${theadHtml}
           <tbody>
             ${rowsHtml}
           </tbody>
@@ -8637,6 +8650,60 @@ document.addEventListener('DOMContentLoaded', () => {
 
       tabSheetPages.appendChild(page);
     });
+  }
+
+  /* ---------------------------------------------------------
+     Renders page 1 (head+summary+table-header+one row) and a
+     continuation page (table-header+one row) into a hidden probe
+     at the real print page size, reads back how tall each fixed
+     part and one data row actually are, and divides that into the
+     170mm of vertical room a .tab-sheet-page has to work with
+     (210mm A4-landscape height, minus the 10mm @page margin and
+     the page's own 10mm top/bottom padding, on both edges). This
+     is what decides how many students land on page 1 vs. later
+     pages — not a guessed constant.
+  --------------------------------------------------------- */
+  function measureTabSheetPageCapacity({ headHtml, summaryHtml, colgroupHtml, theadHtml, sampleRowHtml }) {
+    const PAGE_CONTENT_HEIGHT_MM = 170; // 210mm - 2*10mm @page margin - 2*10mm page padding
+    const mmToPx = (mm) => mm * (96 / 25.4);
+    const budgetPx = mmToPx(PAGE_CONTENT_HEIGHT_MM);
+
+    const probe = document.createElement('div');
+    probe.style.cssText = 'position:absolute; left:-99999px; top:0; width:297mm; box-sizing:border-box; padding:10mm 12mm; visibility:hidden;';
+    probe.className = 'tab-sheet-page';
+    document.body.appendChild(probe);
+
+    // Page 1: head + summary + table with header row + 1 sample row.
+    probe.innerHTML = `
+      ${headHtml}
+      ${summaryHtml}
+      <table class="tab-sheet-table">
+        ${colgroupHtml}
+        ${theadHtml}
+        <tbody>${sampleRowHtml}</tbody>
+      </table>
+    `;
+    const tbody1 = probe.querySelector('tbody');
+    const fixedPx1 = probe.scrollHeight - tbody1.scrollHeight;
+    const rowPx1 = tbody1.scrollHeight; // height of exactly one row
+    const rowsOnPage1 = Math.max(1, Math.floor((budgetPx - fixedPx1) / rowPx1));
+
+    // Continuation page: table only (header row + 1 sample row), no head/summary.
+    probe.innerHTML = `
+      <table class="tab-sheet-table">
+        ${colgroupHtml}
+        ${theadHtml}
+        <tbody>${sampleRowHtml}</tbody>
+      </table>
+    `;
+    const tbody2 = probe.querySelector('tbody');
+    const fixedPx2 = probe.scrollHeight - tbody2.scrollHeight;
+    const rowPx2 = tbody2.scrollHeight;
+    const rowsOnContinuationPage = Math.max(1, Math.floor((budgetPx - fixedPx2) / rowPx2));
+
+    document.body.removeChild(probe);
+
+    return { rowsOnPage1, rowsOnContinuationPage };
   }
 
   /* ---------------------------------------------------------
