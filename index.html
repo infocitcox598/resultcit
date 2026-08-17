@@ -2377,6 +2377,14 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
   margin-bottom: 12px;
 }
 
+/* Continuation pages (2+) only need the roll/subject headers to
+   stay readable — the institute name doesn't need to repeat on
+   every sheet, so those pages get a shorter, plainer meta line. */
+.tab-sheet-head.tab-sheet-head--continued {
+  padding-bottom: 5px;
+  margin-bottom: 8px;
+}
+
 .tab-sheet-head h2 {
   font-size: 1.1rem;
   font-weight: 700;
@@ -2409,6 +2417,12 @@ table.tab-sheet-table td {
   word-break: break-word;
 }
 
+/* Roll numbers are short — a narrow fixed column frees up width
+   for the name and subject-mark columns instead. */
+table.tab-sheet-table col.tab-col-roll {
+  width: 42px;
+}
+
 table.tab-sheet-table th {
   background: #1E3A8A;
   color: #fff;
@@ -2432,51 +2446,51 @@ table.tab-sheet-table tbody tr:nth-child(even) {
 
 .tab-sheet-summary--top {
   margin-top: 0;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
   padding-top: 0;
-  padding-bottom: 12px;
+  padding-bottom: 8px;
   border-top: none;
   border-bottom: 2px solid #1E3A8A;
 }
 
 .tab-sheet-summary h4 {
-  font-size: 0.85rem;
+  font-size: 0.74rem;
   font-weight: 700;
   color: #1E3A8A;
-  margin: 0 0 8px;
+  margin: 0 0 5px;
 }
 
 .tab-summary-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 6px;
 }
 
 .tab-summary-pill {
   flex: 1;
-  min-width: 78px;
+  min-width: 60px;
   text-align: center;
   background: #F1F5F9;
   border: 1px solid #CBD5E1;
-  border-radius: 6px;
-  padding: 6px 4px;
+  border-radius: 5px;
+  padding: 3px 4px;
 }
 
 .tab-summary-pill span {
   display: block;
-  font-size: 0.62rem;
+  font-size: 0.56rem;
   color: #475569;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
 }
 
 .tab-summary-pill b {
-  font-size: 0.9rem;
+  font-size: 0.78rem;
   color: #0F172A;
 }
 
 .tab-summary-pill.tab-pass-rate {
   flex: 1.4;
-  min-width: 110px;
+  min-width: 92px;
   background: #ECFDF5;
   border-color: #A7F3D0;
 }
@@ -8579,13 +8593,32 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       ` : '';
 
-      page.innerHTML = `
+      // Institute name only needs to appear once — repeating it at
+      // the top of every continuation page just eats vertical space
+      // subject/roll columns could use instead.
+      const headHtml = pageIndex === 0 ? `
         <div class="tab-sheet-head">
           <h2>${escapeHtml(currentInstitute.name)}</h2>
           <p class="tab-sheet-meta">${escapeHtml(examName)} &nbsp;•&nbsp; শ্রেণি: ${escapeHtml(className)} &nbsp;•&nbsp; সেশন: ${escapeHtml(session)}</p>
         </div>
+      ` : `
+        <div class="tab-sheet-head tab-sheet-head--continued">
+          <p class="tab-sheet-meta">${escapeHtml(examName)} &nbsp;•&nbsp; শ্রেণি: ${escapeHtml(className)} &nbsp;•&nbsp; সেশন: ${escapeHtml(session)}</p>
+        </div>
+      `;
+
+      page.innerHTML = `
+        ${headHtml}
         ${summaryHtml}
         <table class="tab-sheet-table">
+          <colgroup>
+            <col class="tab-col-roll">
+            <col>
+            ${subjects.map(() => '<col>').join('')}
+            <col>
+            <col>
+            <col>
+          </colgroup>
           <thead>
             <tr>
               <th>রোল</th>
