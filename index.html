@@ -2350,17 +2350,45 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
    TABULATION SHEET (A4 landscape, multi-page, printable)
    ========================================================= */
 
+/* On screen, the sheet is always shown at its true A4-landscape
+   width (297mm) rather than shrunk to fit — that's what makes it
+   readable on a phone. #tabSheetPages scrolls horizontally
+   whenever a page is actually wider than the available space
+   (phones), and simply shows the full page with no scrollbar when
+   there's already enough room (desktop) — overflow:auto only ever
+   kicks in when content overflows, so one rule covers both.
+   Plain block flow on purpose (not flex + align-items:center):
+   with a flex column centering an item wider than the container,
+   the item overflows equally on both sides and the scroll area
+   starts centered on it — touch drag technically still scrolls,
+   but there's nothing to grab at the visual left/right edges,
+   which read as "can't scroll" on a phone. Block flow with
+   auto margins starts flush at the scrollable area's left edge on
+   phones (natural swipe-right-to-see-more) while still centering
+   normally once the container is wide enough to not need to
+   scroll at all (desktop).
+   overflow-y:visible is essential here — CSS says an element with
+   overflow-x set to anything but 'visible' has its overflow-y
+   computed as 'auto' too if left unspecified, which silently
+   turned this into a second (vertical) scroll container. A print
+   engine can't paginate content trapped inside an overflow:auto
+   box — it only prints what fits in that box's own single
+   "viewport" — which is exactly why only page 1 was printing, and
+   on screen it meant page 2+ existed in the DOM but sat below a
+   clipped boundary the page's normal scroll no longer reached. */
 #tabSheetPages {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
+  display: block;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+  padding-bottom: 4px;
 }
 
 .tab-sheet-page {
   width: 297mm;
   min-height: 210mm;
-  max-width: 100%;
+  margin: 0 auto 24px;
   background: #fff;
   color: #0F172A;
   padding: 10mm 12mm;
@@ -2368,6 +2396,10 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
   border-radius: var(--radius-md);
   box-sizing: border-box;
   font-family: 'Noto Sans Bengali', 'Poppins', sans-serif;
+}
+
+.tab-sheet-page:last-child {
+  margin-bottom: 0;
 }
 
 .tab-sheet-head {
@@ -2406,14 +2438,31 @@ table.tab-sheet-table td {
   border: 1px solid #CBD5E1;
   padding: 4px 5px;
   text-align: center;
+}
+
+/* Header labels (subject names) are real Bangla words that can
+   be long, so they're allowed to wrap across a line or two.
+   Data cells are always short (roll numbers, marks, GPA, grade)
+   and must never wrap — with many subject columns, the leftover
+   width per column can get quite narrow, and letting a 2-3 digit
+   number wrap was breaking it apart letter-by-letter into an
+   unreadable vertical stack instead of just staying on one line
+   (worst case it overflows its cell slightly, which is far more
+   readable than that). */
+table.tab-sheet-table th {
   word-break: break-word;
 }
 
-/* Roll numbers are short — a narrow fixed column frees up width
-   for the name and subject-mark columns instead. */
-table.tab-sheet-table col.tab-col-roll {
-  width: 42px;
+table.tab-sheet-table td {
+  white-space: nowrap;
 }
+
+/* Every <col>'s width is now set inline per-render by
+   computeTabColumnLayout() in JS — deterministic and always
+   summing to the table's real printed width, instead of leaving
+   table-layout:fixed to auto-share whatever's left over (which
+   could shrink to almost nothing once there were enough subject
+   columns). */
 
 table.tab-sheet-table th {
   background: #1E3A8A;
@@ -2424,6 +2473,17 @@ table.tab-sheet-table th {
 
 table.tab-sheet-table td.tab-cell-name {
   text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Subject marks read as the important number on the sheet — a
+   little larger and bolder than the roll/name/grade text, without
+   touching the column width itself. */
+table.tab-sheet-table td.tab-cell-mark {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #0F172A;
 }
 
 table.tab-sheet-table tbody tr:nth-child(even) {
@@ -2506,6 +2566,40 @@ table.tab-sheet-table tbody tr:nth-child(even) {
     background: #fff !important;
   }
 
+  /* Only while printing the tabulation sheet: strip any app-shell
+     sizing so the landscape page box isn't constrained. */
+  html[data-print-mode="tab-sheet-page"],
+  html[data-print-mode="tab-sheet-page"] body {
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Entrance animations (fadeInDelay / pageFadeIn / cardSlideUp) use
+     `both` fill, so a section that was display:none until the print
+     stylesheet revealed it starts its animation at opacity:0 — and the
+     print engine snapshots that first frame, producing blank or
+     ghost-faint pages. Kill all animation/transition while printing. */
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  body,
+  .dashboard-page,
+  #instPageTabulation,
+  #tabSheetWrap,
+  #tabSheetPages,
+  .tab-sheet-page {
+    opacity: 1 !important;
+    filter: none !important;
+  }
+
+
+
   .bg-layer,
   .sidebar,
   .sidebar-overlay,
@@ -2538,27 +2632,45 @@ table.tab-sheet-table tbody tr:nth-child(even) {
     color-adjust: exact;
   }
 
+  /* Block flow, NOT flex: a flex row lays every page side by side
+     on one enormous line, which the print engine then clips to the
+     first page box — pages 2+ vanished and page 1 came out cut off.
+     Static (not absolute) positioning too, so the engine can
+     paginate normally. */
   #tabSheetPages {
-    display: flex !important;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
     gap: 0;
+    overflow: visible !important;
   }
 
   .tab-sheet-page {
-    width: 100%;
+    /* The @page box already supplies the 10mm margin, so the page
+       body fills the full landscape content width (277mm) and keeps
+       only its own 12mm side padding — matching the geometry
+       computeTabColumnLayout() uses for the column widths. */
+    width: 100% !important;
+    max-width: none !important;
     min-height: 0;
     box-shadow: none;
     border-radius: 0;
     margin: 0;
+    padding: 0 12mm !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    break-after: page;
     page-break-after: always;
   }
 
   .tab-sheet-page:last-child {
+    break-after: auto;
     page-break-after: auto;
   }
+
 }
 
 /* =========================================================
@@ -4689,9 +4801,39 @@ const INSTITUTES_COL = collection(db, "institutes");
    page-type change and starts a fresh page — leaving an empty
    page 1 in front of the real content).
 --------------------------------------------------------- */
+/* Named @page rules alone are not reliable everywhere (several
+   Android/WebView print engines and older Chrome ignore both the
+   `page` property on <html> and `size:` inside a *named* @page,
+   silently falling back to the ambient portrait page box — which
+   is exactly why the landscape tabulation sheet kept printing as
+   portrait and clipped on the right). So besides setting the page
+   name, we inject a plain unnamed @page rule with the correct
+   size/margin right before printing and remove it afterwards. */
+const PRINT_PAGE_BOXES = {
+  'transcript-page': 'A4 portrait',
+  'tab-sheet-page': 'A4 landscape',
+};
+
 function setPrintPageName(name) {
   document.documentElement.style.setProperty('page', name);
+  document.documentElement.setAttribute('data-print-mode', name);
+
+  let styleEl = document.getElementById('dynamicPageBox');
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'dynamicPageBox';
+    document.head.appendChild(styleEl);
+  }
+  const size = PRINT_PAGE_BOXES[name] || 'A4 portrait';
+  const margin = name === 'tab-sheet-page' ? '10mm' : '25mm';
+  styleEl.textContent = `@page { size: ${size}; margin: ${margin}; }`;
 }
+
+window.addEventListener('afterprint', () => {
+  const styleEl = document.getElementById('dynamicPageBox');
+  if (styleEl) styleEl.remove();
+  document.documentElement.removeAttribute('data-print-mode');
+});
 
 /* ---------------------------------------------------------
    Shared by both the institute and public transcript print
@@ -8505,6 +8647,55 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const TAB_GRADE_KEYS = ['A+', 'A', 'A-', 'B', 'C', 'D', 'F'];
 
+  /* ---------------------------------------------------------
+     Column widths for the tabulation sheet table, computed
+     explicitly rather than left to table-layout:fixed's "share
+     the leftover width equally" default. With many subjects that
+     default can shrink a column to just a few pixels — and since
+     data cells use white-space:nowrap (numbers must never break
+     apart letter-by-letter), a too-narrow column doesn't wrap,
+     it silently overflows and overlaps its neighbours, which is
+     what produced the smeared/unreadable columns. Setting every
+     <col>'s width directly guarantees they always sum to exactly
+     the table's real printed width, with a hard floor per subject
+     column so it's never allowed to collapse that far — the name
+     column gives up room first (down to a floor) if there isn't
+     enough space, and mark text shrinks a step further only if
+     even that isn't enough.
+  --------------------------------------------------------- */
+  function computeTabColumnLayout(subjectCount) {
+    // Fixed print geometry: A4 landscape (297mm) minus the 10mm
+    // @page margin and the sheet's own 10mm/12mm padding on each
+    // side — this is a constant, not something to measure.
+    const TABLE_WIDTH_PX = (297 - 2 * 10 - 2 * 12) * (96 / 25.4); // ≈ 956px
+    const ROLL_W = 34;
+    const SUMMARY_W = 38; // each of মোট / জিপিএ / গ্রেড
+    const MIN_SUBJECT_W = 30;
+    const MAX_NAME_W = 190;
+    const MIN_NAME_W = 96;
+
+    const fixedW = ROLL_W + SUMMARY_W * 3;
+    let nameW = MAX_NAME_W;
+    let subjectW = subjectCount > 0 ? (TABLE_WIDTH_PX - fixedW - nameW) / subjectCount : 0;
+
+    if (subjectCount > 0 && subjectW < MIN_SUBJECT_W) {
+      // Not enough room at the default name width — give the
+      // subjects priority and shrink the name column first.
+      const neededForSubjects = MIN_SUBJECT_W * subjectCount;
+      nameW = Math.max(MIN_NAME_W, TABLE_WIDTH_PX - fixedW - neededForSubjects);
+      subjectW = (TABLE_WIDTH_PX - fixedW - nameW) / subjectCount;
+    }
+
+    // Even after giving up all the name-column room we can spare,
+    // an extreme subject count could still land under the floor —
+    // shrink the mark font a step so nowrap numbers still fit
+    // rather than overflowing into neighbouring cells.
+    const markFontRem = subjectW < MIN_SUBJECT_W ? 0.68 : 0.86;
+    subjectW = Math.max(20, subjectW);
+
+    return { rollW: ROLL_W, nameW, subjectW, summaryW: SUMMARY_W, markFontRem };
+  }
+
   function renderTabulationSheet({ session, className, examName, rows, subjects }) {
     tabSheetPages.innerHTML = '';
 
@@ -8526,12 +8717,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const passRate = gradedTotal > 0 ? ((passCount / gradedTotal) * 100).toFixed(2) : '0.00';
     const absentCount = rows.length - gradedTotal;
 
+    const colLayout = computeTabColumnLayout(subjects.length);
+    const markStyle = `font-size:${colLayout.markFontRem}rem;`;
+
     const subjectHeadHtml = subjects.map((s) => `<th>${escapeHtml(s)}</th>`).join('');
 
     const rowHtml = (r) => {
       const cells = subjects.map((s) => {
         const mark = r.subjects && r.subjects[s] != null ? r.subjects[s] : '-';
-        return `<td>${escapeHtml(mark)}</td>`;
+        return `<td class="tab-cell-mark" style="${markStyle}">${escapeHtml(mark)}</td>`;
       }).join('');
       return `
         <tr>
@@ -8571,12 +8765,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const colgroupHtml = `
       <colgroup>
-        <col class="tab-col-roll">
-        <col>
-        ${subjects.map(() => '<col>').join('')}
-        <col>
-        <col>
-        <col>
+        <col style="width:${colLayout.rollW}px">
+        <col style="width:${colLayout.nameW}px">
+        ${subjects.map(() => `<col style="width:${colLayout.subjectW}px">`).join('')}
+        <col style="width:${colLayout.summaryW}px">
+        <col style="width:${colLayout.summaryW}px">
+        <col style="width:${colLayout.summaryW}px">
       </colgroup>
     `;
 
@@ -8595,30 +8789,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Page 1 carries the institute name, exam/class/session line,
     // and the result summary; every page after that is the mark
-    // sheet only — just the student rows, nothing repeated at the
-    // top. How many students actually fit on each page is measured
-    // directly (same off-screen-probe approach used for the
-    // transcript's print sizing) rather than assumed, since the
-    // available room differs between page 1 (head+summary eat into
-    // it) and later pages (table only, more room for rows).
+    // sheet only. How many students actually fit on each page is
+    // measured, not guessed — see measureTabSheetPageCapacity.
     const { rowsOnPage1, rowsOnContinuationPage } = measureTabSheetPageCapacity({
-      headHtml: `
-        <div class="tab-sheet-head">
-          <h2>${escapeHtml(currentInstitute.name)}</h2>
-          <p class="tab-sheet-meta">${escapeHtml(examName)} &nbsp;•&nbsp; শ্রেণি: ${escapeHtml(className)} &nbsp;•&nbsp; সেশন: ${escapeHtml(session)}</p>
-        </div>
-      `,
-      summaryHtml,
-      colgroupHtml,
-      theadHtml,
-      sampleRowHtml: rowHtml(rows[0] || { roll: '000', name: 'নমুনা', totalMarks: '000', gpa: 0, grade: 'A+', subjects: {} })
+      instName: currentInstitute.name,
+      examName, className, session,
+      summaryHtml, colgroupHtml, theadHtml,
+      sampleRow: rows[0] || { roll: '000', name: 'নমুনা শিক্ষার্থীর নাম', totalMarks: '000', gpa: 0, grade: 'A+', subjects: {} },
+      rowHtml
     });
 
     const pages = [];
     let i = 0;
     let first = true;
     while (i < rows.length) {
-      const size = first ? Math.max(1, rowsOnPage1) : Math.max(1, rowsOnContinuationPage);
+      const size = first ? rowsOnPage1 : rowsOnContinuationPage;
       pages.push(rows.slice(i, i + size));
       i += size;
       first = false;
@@ -8653,62 +8838,85 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* ---------------------------------------------------------
-     Renders page 1 (head+summary+table-header+one row) and a
-     continuation page (table-header+one row) into a hidden probe
-     at the real print page size, reads back how tall each fixed
-     part and one data row actually are, and divides that into the
-     170mm of vertical room a .tab-sheet-page has to work with
-     (210mm A4-landscape height, minus the 10mm @page margin and
-     the page's own 10mm top/bottom padding, on both edges). This
-     is what decides how many students land on page 1 vs. later
-     pages — not a guessed constant.
+     How many student rows actually fit on page 1 (head + summary
+     + table) vs. a continuation page (table only) of the
+     tabulation sheet. Rather than trust any single element's
+     scrollHeight/offsetHeight (table-internal elements like
+     <tbody>/<tr> are notoriously inconsistent across browsers for
+     that), this renders the SAME probe with a small number of
+     sample rows (3) and then a larger number (9), reads the
+     probe's own getBoundingClientRect().height both times, and
+     uses the DIFFERENCE to get an exact per-row height — a
+     measurement that's correct regardless of how any individual
+     table-internal element reports its own size. The fixed
+     head/summary/table-header overhead then falls out from either
+     reading once the per-row height is known.
   --------------------------------------------------------- */
-  function measureTabSheetPageCapacity({ headHtml, summaryHtml, colgroupHtml, theadHtml, sampleRowHtml }) {
-    const PAGE_CONTENT_HEIGHT_MM = 170; // 210mm - 2*10mm @page margin - 2*10mm page padding
-    const mmToPx = (mm) => mm * (96 / 25.4);
-    const budgetPx = mmToPx(PAGE_CONTENT_HEIGHT_MM);
+  function measureTabSheetPageCapacity({ instName, examName, className, session, summaryHtml, colgroupHtml, theadHtml, sampleRow, rowHtml }) {
+    const PAGE_CONTENT_HEIGHT_MM = 170; // 210mm A4-landscape - 2×10mm @page margin - 2×10mm page padding
+    const budgetPx = PAGE_CONTENT_HEIGHT_MM * (96 / 25.4);
 
+    const headHtml = `
+      <div class="tab-sheet-head">
+        <h2>${escapeHtml(instName)}</h2>
+        <p class="tab-sheet-meta">${escapeHtml(examName)} &nbsp;•&nbsp; শ্রেণি: ${escapeHtml(className)} &nbsp;•&nbsp; সেশন: ${escapeHtml(session)}</p>
+      </div>
+    `;
+
+    const wrapper = document.createElement('div');
+    // Plain, unstyled wrapper that's the actual position:absolute
+    // element with the fixed 297mm width — nothing on it can be
+    // clamped by a viewport-relative max-width. .tab-sheet-page's
+    // own width:297mm/max-width:100% is then harmless on the inner
+    // probe, because 100% resolves against ITS parent (this
+    // wrapper's fixed 297mm), not the viewport. min-height:0 still
+    // has to override .tab-sheet-page's real-page min-height:210mm
+    // directly, or every reading below would come back identical
+    // (pinned to 210mm) regardless of actual content.
+    wrapper.style.cssText = 'position:absolute; left:-99999px; top:0; width:297mm; visibility:hidden;';
     const probe = document.createElement('div');
-    // NOTE: min-height:0 here is essential — the .tab-sheet-page
-    // class this reuses (for identical padding/width/table styling)
-    // also carries min-height:210mm for the real printed pages,
-    // which would otherwise pin scrollHeight to that fixed value
-    // regardless of actual content and make every capacity
-    // calculation come out as "1 row fits" (which is exactly the
-    // per-student-page-each bug this was fixed to prevent).
-    probe.style.cssText = 'position:absolute; left:-99999px; top:0; width:297mm; min-height:0 !important; box-sizing:border-box; padding:10mm 12mm; visibility:hidden;';
+    probe.style.cssText = 'width:100%; min-height:0 !important; box-sizing:border-box; padding:10mm 12mm;';
     probe.className = 'tab-sheet-page';
-    document.body.appendChild(probe);
+    wrapper.appendChild(probe);
+    document.body.appendChild(wrapper);
 
-    // Page 1: head + summary + table with header row + 1 sample row.
-    probe.innerHTML = `
-      ${headHtml}
-      ${summaryHtml}
+    const N_SMALL = 3;
+    const N_LARGE = 9;
+    const rowsHtmlOf = (n) => Array.from({ length: n }, () => rowHtml(sampleRow)).join('');
+
+    const heightWith = (bodyHtml) => {
+      probe.innerHTML = bodyHtml;
+      return probe.getBoundingClientRect().height;
+    };
+
+    const tableHtml = (n) => `
       <table class="tab-sheet-table">
         ${colgroupHtml}
         ${theadHtml}
-        <tbody>${sampleRowHtml}</tbody>
+        <tbody>${rowsHtmlOf(n)}</tbody>
       </table>
     `;
-    const tbody1 = probe.querySelector('tbody');
-    const fixedPx1 = probe.scrollHeight - tbody1.scrollHeight;
-    const rowPx1 = tbody1.scrollHeight; // height of exactly one row
-    const rowsOnPage1 = Math.max(1, Math.floor((budgetPx - fixedPx1) / rowPx1));
 
-    // Continuation page: table only (header row + 1 sample row), no head/summary.
-    probe.innerHTML = `
-      <table class="tab-sheet-table">
-        ${colgroupHtml}
-        ${theadHtml}
-        <tbody>${sampleRowHtml}</tbody>
-      </table>
-    `;
-    const tbody2 = probe.querySelector('tbody');
-    const fixedPx2 = probe.scrollHeight - tbody2.scrollHeight;
-    const rowPx2 = tbody2.scrollHeight;
-    const rowsOnContinuationPage = Math.max(1, Math.floor((budgetPx - fixedPx2) / rowPx2));
+    const page1Small = heightWith(headHtml + summaryHtml + tableHtml(N_SMALL));
+    const page1Large = heightWith(headHtml + summaryHtml + tableHtml(N_LARGE));
+    const contSmall = heightWith(tableHtml(N_SMALL));
 
-    document.body.removeChild(probe);
+    document.body.removeChild(wrapper);
+
+    const rowPx = (page1Large - page1Small) / (N_LARGE - N_SMALL);
+    const page1FixedPx = page1Small - rowPx * N_SMALL;
+    const contFixedPx = contSmall - rowPx * N_SMALL;
+
+    // rowPx should always be positive and sane; fall back to safe,
+    // conservative constants if measurement ever comes back
+    // nonsensical (e.g. 0 or negative) instead of risking a
+    // division that produces an unusably large or tiny count.
+    if (!(rowPx > 1)) {
+      return { rowsOnPage1: 18, rowsOnContinuationPage: 24 };
+    }
+
+    const rowsOnPage1 = Math.max(1, Math.floor((budgetPx - page1FixedPx) / rowPx));
+    const rowsOnContinuationPage = Math.max(1, Math.floor((budgetPx - contFixedPx) / rowPx));
 
     return { rowsOnPage1, rowsOnContinuationPage };
   }
