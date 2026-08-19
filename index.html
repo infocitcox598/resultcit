@@ -2378,17 +2378,20 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
    clipped boundary the page's normal scroll no longer reached. */
 #tabSheetPages {
   display: block;
-  overflow-x: auto;
-  overflow-y: visible;
+  overflow: auto;
   -webkit-overflow-scrolling: touch;
-  touch-action: pan-x;
-  padding-bottom: 4px;
+  touch-action: auto;
+  padding: 10px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  max-height: 80vh;
 }
 
 .tab-sheet-page {
   width: 297mm;
   min-height: 210mm;
-  margin: 0 auto 24px;
+  margin: 0 auto 12px;
   background: #fff;
   color: #0F172A;
   padding: 10mm 12mm;
@@ -2396,6 +2399,7 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
   border-radius: var(--radius-md);
   box-sizing: border-box;
   font-family: 'Noto Sans Bengali', 'Poppins', sans-serif;
+  flex-shrink: 0;
 }
 
 .tab-sheet-page:last-child {
@@ -2464,11 +2468,14 @@ table.tab-sheet-table td {
    could shrink to almost nothing once there were enough subject
    columns). */
 
-table.tab-sheet-table th {
+table.tab-sheet-table thead th {
   background: #1E3A8A;
   color: #fff;
   font-weight: 600;
   font-size: 0.68rem;
+  position: sticky;
+  top: -1px;
+  z-index: 10;
 }
 
 table.tab-sheet-table td.tab-cell-name {
@@ -2520,12 +2527,16 @@ table.tab-sheet-table tbody tr:nth-child(even) {
 
 .tab-summary-pill {
   flex: 1;
-  min-width: 60px;
+  min-width: 65px;
   text-align: center;
   background: #F1F5F9;
   border: 1px solid #CBD5E1;
   border-radius: 5px;
-  padding: 3px 4px;
+  padding: 4px 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .tab-summary-pill span {
@@ -2593,10 +2604,13 @@ table.tab-sheet-table tbody tr:nth-child(even) {
   #instPageTabulation,
   #tabSheetWrap,
   #tabSheetPages,
-  .tab-sheet-page {
+  .tab-sheet-page,
+  .tab-sheet-page * {
     opacity: 1 !important;
     filter: none !important;
+    visibility: visible !important;
   }
+
 
 
 
@@ -2644,32 +2658,44 @@ table.tab-sheet-table tbody tr:nth-child(even) {
     max-width: none !important;
     margin: 0 !important;
     padding: 0 !important;
-    gap: 0;
     overflow: visible !important;
+    max-height: none !important;
+    background: transparent !important;
+    border: none !important;
   }
 
+  /* The @page box already supplies the 10mm margin, so the printable
+     area is 277mm x 190mm. Any fixed 297x210mm page element (plus its
+     own padding) overflows that box and the engine emits an extra
+     blank sheet after every page. Let the element size to content. */
   .tab-sheet-page {
-    /* The @page box already supplies the 10mm margin, so the page
-       body fills the full landscape content width (277mm) and keeps
-       only its own 12mm side padding — matching the geometry
-       computeTabColumnLayout() uses for the column widths. */
-    width: 100% !important;
-    max-width: none !important;
-    min-height: 0;
-    box-shadow: none;
-    border-radius: 0;
-    margin: 0;
-    padding: 0 12mm !important;
-    break-inside: avoid;
-    page-break-inside: avoid;
-    break-after: page;
-    page-break-after: always;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    width: auto !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: 190mm !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
   }
 
   .tab-sheet-page:last-child {
-    break-after: auto;
-    page-break-after: auto;
+    page-break-after: auto !important;
+    break-after: auto !important;
   }
+
+  table.tab-sheet-table thead th {
+    position: static !important;
+  }
+
 
 }
 
@@ -4143,7 +4169,7 @@ table.tab-sheet-table tbody tr:nth-child(even) {
       <div id="instPageSearchResult" class="dashboard-page d-none">
 
         <!-- Search section -->
-        <div class="settings-card">
+        <div class="settings-card" id="resultSearchFormCard">
           <h3 class="settings-card-title">
             <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
             ফলাফল খুঁজুন
@@ -4850,9 +4876,12 @@ window.addEventListener('afterprint', () => {
 function applyTranscriptPrintDensity(cardEl, tableEl, bannerImgEl) {
   if (!cardEl) return;
   cardEl.classList.remove('transcript-density-compact', 'transcript-density-tight');
+  cardEl.style.zoom = '';
+  cardEl.style.transform = 'none';
+
 
   const PAGE_HEIGHT_MM = 247; // 297mm A4 - 2*25mm @page margin
-  const usablePx = PAGE_HEIGHT_MM * (96 / 25.4);
+  const usablePx = (PAGE_HEIGHT_MM - 2) * (96 / 25.4); // 2mm safety buffer
 
   const probe = document.createElement('div');
   probe.className = 'transcript-measure-probe';
@@ -4874,10 +4903,26 @@ function applyTranscriptPrintDensity(cardEl, tableEl, bannerImgEl) {
     }
   }
 
+  /* Even at the tightest density a transcript with a very large
+     number of subjects can still be taller than one page. So after
+     picking the density, measure once more and scale the whole card
+     down by whatever factor is still needed. `zoom` (not transform)
+     is used on purpose: it shrinks the element's real layout box, so
+     the printer sees a genuinely shorter page instead of a full-size
+     box that merely paints smaller (which produced blank pages). */
+  let zoom = 1;
+  const finalHeight = clone.getBoundingClientRect().height;
+  if (finalHeight > usablePx) {
+    zoom = Math.max(0.2, (usablePx / finalHeight) - 0.005); // Lower floor to 0.2 for extreme subject counts
+  }
+
   document.body.removeChild(probe);
 
   if (density === 'compact') cardEl.classList.add('transcript-density-compact');
   else if (density === 'tight') cardEl.classList.add('transcript-density-tight');
+
+  cardEl.style.zoom = zoom < 1 ? String(zoom) : '';
+  cardEl.style.transform = 'none';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -5489,6 +5534,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const resultSearchErrorText  = document.getElementById('resultSearchErrorText');
 
   const transcriptWrap      = document.getElementById('transcriptWrap');
+  const resultSearchFormCard = document.getElementById('resultSearchFormCard');
   const transcriptBannerImg   = document.getElementById('transcriptBannerImg');
   const transcriptTextHeader  = document.getElementById('transcriptTextHeader');
   const transcriptInstName    = document.getElementById('transcriptInstName');
@@ -6959,6 +7005,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     resultSearchErrorAlert.classList.add('d-none');
     transcriptWrap.classList.add('d-none');
+    if (resultSearchFormCard) resultSearchFormCard.classList.remove('d-none');
     searchRollInput.value = '';
 
     const sessions = currentInstitute.sessions || [];
@@ -7345,6 +7392,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     transcriptWrap.classList.remove('d-none');
+    if (resultSearchFormCard) resultSearchFormCard.classList.add('d-none');
+    transcriptWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   if (transcriptPrintBtn) {
@@ -7377,16 +7426,16 @@ document.addEventListener('DOMContentLoaded', () => {
   function fitCardToOnePage(cardId) {
     const card = document.getElementById(cardId);
     if (!card) return;
-    card.style.transform = 'none';
-    const rect = card.getBoundingClientRect();
-    if (!rect.height || !rect.width) return;
-    const scale = Math.min(1, PRINT_PAGE_HEIGHT_PX / rect.height, PRINT_PAGE_WIDTH_PX / rect.width);
-    card.style.transform = scale < 1 ? `scale(${scale})` : 'none';
+    // Re-measure through the shared print-density/zoom routine so
+    // that browser-initiated prints (Ctrl+P) fit on one page too.
+    applyTranscriptPrintDensity(card);
   }
 
   function resetCardScale(cardId) {
     const card = document.getElementById(cardId);
-    if (card) card.style.transform = 'none';
+    if (!card) return;
+    card.style.transform = 'none';
+    card.style.zoom = '';
   }
 
   window.addEventListener('beforeprint', () => {
@@ -8743,18 +8792,30 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="tab-sheet-summary tab-sheet-summary--top">
         <h4>ফলাফলের সারসংক্ষেপ</h4>
         <div class="tab-summary-row">
+          <div class="tab-summary-pill" style="background:#E0F2FE; border-color:#BAE6FD;">
+            <span>মোট পরীক্ষার্থী</span>
+            <b>${escapeHtml(rows.length)}</b>
+          </div>
           <div class="tab-summary-pill tab-pass-rate">
+            <span>কৃতকার্য</span>
+            <b>${escapeHtml(passCount)}</b>
+          </div>
+          <div class="tab-summary-pill" style="background:#FEF2F2; border-color:#FECACA;">
+            <span>অকৃতকার্য</span>
+            <b>${escapeHtml(gradedTotal - passCount)}</b>
+          </div>
+          <div class="tab-summary-pill tab-pass-rate" style="flex:1.2;">
             <span>পাশের হার</span>
             <b>${escapeHtml(passRate)}%</b>
           </div>
-          ${TAB_GRADE_KEYS.map((g) => `
+          ${TAB_GRADE_KEYS.filter(g => g !== 'F').map((g) => `
             <div class="tab-summary-pill">
               <span>${escapeHtml(g)}</span>
               <b>${escapeHtml(gradeCounts[g])}</b>
             </div>
           `).join('')}
           ${absentCount > 0 ? `
-            <div class="tab-summary-pill">
+            <div class="tab-summary-pill" style="background:#F8FAFC; border-color:#E2E8F0;">
               <span>অনুপস্থিত</span>
               <b>${escapeHtml(absentCount)}</b>
             </div>
@@ -8853,8 +8914,10 @@ document.addEventListener('DOMContentLoaded', () => {
      reading once the per-row height is known.
   --------------------------------------------------------- */
   function measureTabSheetPageCapacity({ instName, examName, className, session, summaryHtml, colgroupHtml, theadHtml, sampleRow, rowHtml }) {
-    const PAGE_CONTENT_HEIGHT_MM = 170; // 210mm A4-landscape - 2×10mm @page margin - 2×10mm page padding
+    // 210mm A4-landscape - 2×10mm @page margin - 2×10mm page padding - 4mm safety buffer
+    const PAGE_CONTENT_HEIGHT_MM = 166;
     const budgetPx = PAGE_CONTENT_HEIGHT_MM * (96 / 25.4);
+
 
     const headHtml = `
       <div class="tab-sheet-head">
