@@ -2936,7 +2936,9 @@ table.tab-sheet-table tbody tr:nth-child(even) {
               </tr>
               <tr>
                 <td class="ti-label">গ্রেড</td>
-                <td class="ti-value ti-strong" colspan="3" id="pubTGrade">&mdash;</td>
+                <td class="ti-value ti-strong" id="pubTGrade">&mdash;</td>
+                <td class="ti-label">মেধা ক্রম</td>
+                <td class="ti-value ti-strong" id="pubTRank">&mdash;</td>
               </tr>
             </tbody>
           </table>
@@ -3660,6 +3662,82 @@ table.tab-sheet-table tbody tr:nth-child(even) {
         </div>
       </div>
 
+      <!-- ============ PAGE: REPORTS ============ -->
+      <div id="pageReports" class="dashboard-page d-none">
+
+        <!-- Step 1: pick an institute -->
+        <div class="activity-card" id="reportInstituteStep">
+          <div class="activity-header">
+            <h3>রিপোর্ট — প্রতিষ্ঠান নির্বাচন</h3>
+          </div>
+
+          <p class="settings-card-desc" style="margin: 0 0 16px;">
+            প্রতিষ্ঠান খুঁজে বের করুন, তারপর সেই প্রতিষ্ঠান সেশন অনুযায়ী কোন কোন পরীক্ষার ফলাফল প্রকাশ করেছে তা দেখুন।
+          </p>
+
+          <div class="form-group" style="max-width: 360px;">
+            <div class="input-shell">
+              <span class="input-icon" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
+              <input type="text" class="form-control custom-input" id="reportInstituteSearchInput" placeholder="প্রতিষ্ঠানের নাম লিখুন">
+            </div>
+          </div>
+
+          <div id="reportInstituteEmpty" class="placeholder-card d-none">
+            <i class="fa-solid fa-school" aria-hidden="true"></i>
+            <p>এখনো কোনো প্রতিষ্ঠান যুক্ত করা হয়নি।</p>
+          </div>
+
+          <div id="reportInstitutePrompt" class="placeholder-card d-none">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <p>প্রতিষ্ঠানের নাম লিখে খুঁজুন।</p>
+          </div>
+
+          <div id="reportInstituteSearchEmpty" class="placeholder-card d-none">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <p>এই নামে কোনো প্রতিষ্ঠান পাওয়া যায়নি।</p>
+          </div>
+
+          <div class="table-responsive">
+            <table class="activity-table d-none" id="reportInstituteTable">
+              <thead>
+                <tr>
+                  <th scope="col">প্রতিষ্ঠানের নাম</th>
+                  <th scope="col">মোবাইল</th>
+                  <th scope="col">সাইট ইউনিক আইডি</th>
+                  <th scope="col">কার্যক্রম</th>
+                </tr>
+              </thead>
+              <tbody id="reportInstituteTableBody">
+                <!-- Rows injected by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Step 2: session-wise published-exam report -->
+        <div class="settings-card institute-picker-card d-none" id="reportViewStep">
+          <div class="activity-header" style="margin-bottom: 14px;">
+            <h3 id="reportSelectedInstituteName">—</h3>
+            <button type="button" class="btn-cancel-edit" id="reportChangeInstituteBtn">
+              <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+              অন্য প্রতিষ্ঠান
+            </button>
+          </div>
+
+          <div id="reportLoading" class="placeholder-card d-none">
+            <i class="fa-solid fa-circle-notch" aria-hidden="true"></i>
+            <p>তথ্য লোড হচ্ছে...</p>
+          </div>
+
+          <div id="reportEmpty" class="placeholder-card d-none">
+            <i class="fa-solid fa-file-circle-xmark" aria-hidden="true"></i>
+            <p>এই প্রতিষ্ঠান এখনো কোনো ফলাফল প্রকাশ করেনি।</p>
+          </div>
+
+          <div id="reportSessionsWrap" class="d-none"></div>
+        </div>
+      </div>
+
       <!-- ============ PAGE: SESSION & CLASS ============ -->
       <div id="pageSessionClass" class="dashboard-page d-none">
 
@@ -4261,7 +4339,9 @@ table.tab-sheet-table tbody tr:nth-child(even) {
                 </tr>
                 <tr>
                   <td class="ti-label">গ্রেড</td>
-                  <td class="ti-value ti-strong" colspan="3" id="tGrade">&mdash;</td>
+                  <td class="ti-value ti-strong" id="tGrade">&mdash;</td>
+                  <td class="ti-label">মেধা ক্রম</td>
+                  <td class="ti-value ti-strong" id="tRank">&mdash;</td>
                 </tr>
               </tbody>
             </table>
@@ -4977,6 +5057,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pubTTotal    = document.getElementById('pubTTotal');
     const pubTGpa      = document.getElementById('pubTGpa');
     const pubTGrade    = document.getElementById('pubTGrade');
+    const pubTRank     = document.getElementById('pubTRank');
     const pubTSubjectsBody = document.getElementById('pubTSubjectsBody');
 
     let pubInstitute = null; // { key, name, sessions, classes }
@@ -5134,18 +5215,20 @@ document.addEventListener('DOMContentLoaded', () => {
           resultsCol,
           where('session', '==', session),
           where('className', '==', className),
-          where('examName', '==', examName),
-          where('roll', '==', roll)
+          where('examName', '==', examName)
         );
         const snap = await getDocs(q);
+        const rows = snap.docs.map((d) => d.data());
+        const match = rows.find((r) => r.roll === roll);
 
-        if (snap.empty) {
+        if (!match) {
           showPubSearchError('এই তথ্য দিয়ে কোনো ফলাফল খুঁজে পাওয়া যায়নি। রোল নম্বর যাচাই করে আবার চেষ্টা করুন।');
           setPubSearchLoading(false);
           return;
         }
 
-        pubRenderResult(snap.docs[0].data());
+        const rankMap = computeMeritRanks(rows);
+        pubRenderResult(match, rankMap.get(match));
         pubSearchBox.classList.add('d-none');
         pubResultBox.classList.remove('d-none');
         pubBrandSection.classList.add('d-none');
@@ -5157,7 +5240,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    function pubRenderResult(r) {
+    function pubRenderResult(r, rank) {
       const pubTranscriptHeaderAccent = document.getElementById('pubTranscriptHeaderAccent');
       if (pubInstitute.bannerUrl) {
         pubTranscriptBannerImg.src = pubInstitute.bannerUrl;
@@ -5181,6 +5264,7 @@ document.addEventListener('DOMContentLoaded', () => {
       pubTTotal.textContent   = r.totalMarks;
       pubTGpa.textContent     = isAbsentValue(r.grade) ? 'N/A' : Number(r.gpa).toFixed(2);
       pubTGrade.textContent   = isAbsentValue(r.grade) ? 'N/A' : r.grade;
+      pubTRank.textContent    = isAbsentValue(r.grade) ? 'N/A' : (rank != null ? rank : '-');
 
       const order = Array.isArray(r.subjectOrder) && r.subjectOrder.length
         ? r.subjectOrder
@@ -5289,6 +5373,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const backupClassSelect          = document.getElementById('backupClassSelect');
   const backupExamSelect           = document.getElementById('backupExamSelect');
   const backupDownloadBtn          = document.getElementById('backupDownloadBtn');
+  const pageReports                = document.getElementById('pageReports');
+  const reportInstituteStep        = document.getElementById('reportInstituteStep');
+  const reportInstituteSearchInput = document.getElementById('reportInstituteSearchInput');
+  const reportInstituteEmpty       = document.getElementById('reportInstituteEmpty');
+  const reportInstitutePrompt      = document.getElementById('reportInstitutePrompt');
+  const reportInstituteSearchEmpty = document.getElementById('reportInstituteSearchEmpty');
+  const reportInstituteTable       = document.getElementById('reportInstituteTable');
+  const reportInstituteTableBody   = document.getElementById('reportInstituteTableBody');
+  const reportViewStep             = document.getElementById('reportViewStep');
+  const reportSelectedInstituteName = document.getElementById('reportSelectedInstituteName');
+  const reportChangeInstituteBtn   = document.getElementById('reportChangeInstituteBtn');
+  const reportLoading              = document.getElementById('reportLoading');
+  const reportEmpty                = document.getElementById('reportEmpty');
+  const reportSessionsWrap         = document.getElementById('reportSessionsWrap');
   const pagePlaceholder    = document.getElementById('pagePlaceholder');
   const placeholderText    = document.getElementById('placeholderText');
 
@@ -5546,6 +5644,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const tTotal   = document.getElementById('tTotal');
   const tGpa     = document.getElementById('tGpa');
   const tGrade   = document.getElementById('tGrade');
+  const tRank    = document.getElementById('tRank');
   const tSession = document.getElementById('tSession');
   const tSubjectsBody   = document.getElementById('tSubjectsBody');
   const transcriptPrintBtn = document.getElementById('transcriptPrintBtn');
@@ -6056,6 +6155,7 @@ document.addEventListener('DOMContentLoaded', () => {
     pageSessionClass.classList.add('d-none');
     pagePayment.classList.add('d-none');
     pageBackup.classList.add('d-none');
+    pageReports.classList.add('d-none');
     pagePlaceholder.classList.add('d-none');
     hideSettingsAlerts();
     hideInstituteAlerts();
@@ -6084,6 +6184,9 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (key === 'backup') {
       renderBackupPage();
       pageBackup.classList.remove('d-none');
+    } else if (key === 'reports') {
+      renderReportsPage();
+      pageReports.classList.remove('d-none');
     } else {
       placeholderText.textContent = `${PAGE_TITLES[key] || ''} সেকশনটি শীঘ্রই আসছে।`;
       pagePlaceholder.classList.remove('d-none');
@@ -6902,6 +7005,31 @@ document.addEventListener('DOMContentLoaded', () => {
     return v === ABSENT_MARK;
   }
 
+  /* ---------------------------------------------------------
+     Merit rank (মেধা ক্রম) for a group of results from the same
+     session + class + exam: ordered by GPA (highest first); ties
+     broken by total marks (highest first); any still-remaining
+     tie broken by roll number (earlier roll first). Absent
+     students receive no rank. Returns a Map from each row object
+     to its 1-based rank.
+  --------------------------------------------------------- */
+  function computeMeritRanks(rows) {
+    const ranked = rows.filter((r) => !isAbsentValue(r.grade));
+    ranked.sort((a, b) => {
+      const gpaDiff = Number(b.gpa) - Number(a.gpa);
+      if (gpaDiff !== 0) return gpaDiff;
+      const totalDiff = Number(b.totalMarks) - Number(a.totalMarks);
+      if (totalDiff !== 0) return totalDiff;
+      const an = parseFloat(a.roll);
+      const bn = parseFloat(b.roll);
+      if (!Number.isNaN(an) && !Number.isNaN(bn)) return an - bn;
+      return String(a.roll).localeCompare(String(b.roll));
+    });
+    const rankMap = new Map();
+    ranked.forEach((r, i) => rankMap.set(r, i + 1));
+    return rankMap;
+  }
+
   function lookupGrade(mark) {
     const list = getGradingList();
     const band = list.find((g) => mark >= g.min && mark <= g.max);
@@ -7275,8 +7403,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* ---------------------------------------------------------
-     Search — find a student's result and render the transcript
-     (no merit position, per requirement)
+     Search — find a student's result and render the transcript,
+     including their merit position (মেধা ক্রম) within the class.
   --------------------------------------------------------- */
   if (resultSearchBtn) {
     resultSearchBtn.addEventListener('click', async () => {
@@ -7305,7 +7433,8 @@ document.addEventListener('DOMContentLoaded', () => {
           where('examName', '==', examName)
         );
         const snap = await getDocs(q);
-        const match = snap.docs.find((d) => d.data().roll === roll);
+        const rows = snap.docs.map((d) => d.data());
+        const match = rows.find((r) => r.roll === roll);
 
         if (!match) {
           resultSearchErrorText.textContent = 'কোনো ফলাফল পাওয়া যায়নি। রোল নম্বর যাচাই করুন।';
@@ -7313,7 +7442,8 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
 
-        renderTranscript(match.data());
+        const rankMap = computeMeritRanks(rows);
+        renderTranscript(match, rankMap.get(match));
       } catch (err) {
         console.error('Result search failed:', err);
         resultSearchErrorText.textContent = 'ফলাফল খুঁজে পেতে সমস্যা হয়েছে। আবার চেষ্টা করুন।';
@@ -7350,7 +7480,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return entries;
   }
 
-  function renderTranscript(data) {
+  function renderTranscript(data, rank) {
     const transcriptHeaderAccent = document.getElementById('transcriptHeaderAccent');
     if (currentInstitute.bannerUrl) {
       transcriptBannerImg.src = currentInstitute.bannerUrl;
@@ -7374,6 +7504,7 @@ document.addEventListener('DOMContentLoaded', () => {
     tTotal.textContent   = data.totalMarks;
     tGpa.textContent     = isAbsentValue(data.grade) ? 'N/A' : Number(data.gpa).toFixed(2);
     tGrade.textContent   = isAbsentValue(data.grade) ? 'N/A' : data.grade;
+    tRank.textContent    = isAbsentValue(data.grade) ? 'N/A' : (rank != null ? rank : '-');
 
     tSubjectsBody.innerHTML = '';
     getOrderedSubjectEntries(data).forEach(([subject, mark]) => {
@@ -8306,26 +8437,42 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  async function removeSession(value) {
+  function removeSession(value) {
     const inst = institutes.find((i) => i.key === scSelectedInstituteKey);
     if (!inst) return;
-    try {
-      await updateDoc(doc(db, 'institutes', inst.key), { sessions: arrayRemove(value) });
-    } catch (err) {
-      console.error('Remove session failed:', err);
-      showScError('সেশন মুছে ফেলা যায়নি। আবার চেষ্টা করুন।');
-    }
+
+    openConfirmModal({
+      title: 'সেশন মুছে ফেলুন',
+      message: `"${value}" সেশনটি মুছে ফেলতে চান?`,
+      confirmLabel: 'মুছে ফেলুন',
+      onConfirm: async () => {
+        try {
+          await updateDoc(doc(db, 'institutes', inst.key), { sessions: arrayRemove(value) });
+        } catch (err) {
+          console.error('Remove session failed:', err);
+          showScError('সেশন মুছে ফেলা যায়নি। আবার চেষ্টা করুন।');
+        }
+      }
+    });
   }
 
-  async function removeClass(value) {
+  function removeClass(value) {
     const inst = institutes.find((i) => i.key === scSelectedInstituteKey);
     if (!inst) return;
-    try {
-      await updateDoc(doc(db, 'institutes', inst.key), { classes: arrayRemove(value) });
-    } catch (err) {
-      console.error('Remove class failed:', err);
-      showScError('শ্রেণি মুছে ফেলা যায়নি। আবার চেষ্টা করুন।');
-    }
+
+    openConfirmModal({
+      title: 'শ্রেণি মুছে ফেলুন',
+      message: `"${value}" শ্রেণিটি মুছে ফেলতে চান?`,
+      confirmLabel: 'মুছে ফেলুন',
+      onConfirm: async () => {
+        try {
+          await updateDoc(doc(db, 'institutes', inst.key), { classes: arrayRemove(value) });
+        } catch (err) {
+          console.error('Remove class failed:', err);
+          showScError('শ্রেণি মুছে ফেলা যায়নি। আবার চেষ্টা করুন।');
+        }
+      }
+    });
   }
 
   /* =========================================================
@@ -8718,12 +8865,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // side — this is a constant, not something to measure.
     const TABLE_WIDTH_PX = (297 - 2 * 10 - 2 * 12) * (96 / 25.4); // ≈ 956px
     const ROLL_W = 34;
-    const SUMMARY_W = 38; // each of মোট / জিপিএ / গ্রেড
+    const SUMMARY_W = 38; // each of মোট / জিপিএ / গ্রেড / মেধা ক্রম
     const MIN_SUBJECT_W = 30;
     const MAX_NAME_W = 190;
     const MIN_NAME_W = 96;
 
-    const fixedW = ROLL_W + SUMMARY_W * 3;
+    const fixedW = ROLL_W + SUMMARY_W * 4;
     let nameW = MAX_NAME_W;
     let subjectW = subjectCount > 0 ? (TABLE_WIDTH_PX - fixedW - nameW) / subjectCount : 0;
 
@@ -8768,6 +8915,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const colLayout = computeTabColumnLayout(subjects.length);
     const markStyle = `font-size:${colLayout.markFontRem}rem;`;
+    const rankMap = computeMeritRanks(rows);
 
     const subjectHeadHtml = subjects.map((s) => `<th>${escapeHtml(s)}</th>`).join('');
 
@@ -8776,6 +8924,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const mark = r.subjects && r.subjects[s] != null ? r.subjects[s] : '-';
         return `<td class="tab-cell-mark" style="${markStyle}">${escapeHtml(mark)}</td>`;
       }).join('');
+      const rank = rankMap.get(r);
       return `
         <tr>
           <td>${escapeHtml(r.roll)}</td>
@@ -8784,6 +8933,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <td>${escapeHtml(r.totalMarks)}</td>
           <td>${escapeHtml(isAbsentValue(r.grade) ? ABSENT_MARK : Number(r.gpa).toFixed(2))}</td>
           <td>${escapeHtml(r.grade)}</td>
+          <td>${escapeHtml(rank != null ? rank : '-')}</td>
         </tr>
       `;
     };
@@ -8832,6 +8982,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <col style="width:${colLayout.summaryW}px">
         <col style="width:${colLayout.summaryW}px">
         <col style="width:${colLayout.summaryW}px">
+        <col style="width:${colLayout.summaryW}px">
       </colgroup>
     `;
 
@@ -8844,6 +8995,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <th>মোট</th>
           <th>জিপিএ</th>
           <th>গ্রেড</th>
+          <th>মেধা ক্রম</th>
         </tr>
       </thead>
     `;
@@ -9114,6 +9266,173 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+
+  /* ---------------------------------------------------------
+     Reports — pick an institute, then see, session by session,
+     which classes/exams have published results (with student
+     counts), pulled straight from that institute's results
+     collection.
+  --------------------------------------------------------- */
+  let selectedReportInstitute = null;
+
+  function renderReportsPage() {
+    if (reportInstituteSearchInput) reportInstituteSearchInput.value = '';
+    selectedReportInstitute = null;
+    reportViewStep.classList.add('d-none');
+    reportInstituteStep.classList.remove('d-none');
+    renderReportInstituteList();
+  }
+
+  function renderReportInstituteList() {
+    const term = (reportInstituteSearchInput.value || '').trim().toLowerCase();
+
+    reportInstituteEmpty.classList.add('d-none');
+    reportInstitutePrompt.classList.add('d-none');
+    reportInstituteSearchEmpty.classList.add('d-none');
+    reportInstituteTable.classList.add('d-none');
+    reportInstituteTableBody.innerHTML = '';
+
+    if (institutes.length === 0) {
+      reportInstituteEmpty.classList.remove('d-none');
+      return;
+    }
+
+    if (!term) {
+      reportInstitutePrompt.classList.remove('d-none');
+      return;
+    }
+
+    const filtered = institutes.filter((inst) => (inst.name || '').toLowerCase().includes(term));
+
+    if (filtered.length === 0) {
+      reportInstituteSearchEmpty.classList.remove('d-none');
+      return;
+    }
+
+    reportInstituteTable.classList.remove('d-none');
+    filtered.forEach((inst) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${escapeHtml(inst.name)}</td>
+        <td>${escapeHtml(inst.mobile)}</td>
+        <td><span class="site-id-pill">${escapeHtml(inst.siteId)}</span></td>
+        <td>
+          <div class="row-actions">
+            <button type="button" class="btn-cancel-edit" data-select-report-inst="${escapeHtml(inst.key)}">নির্বাচন করুন</button>
+          </div>
+        </td>
+      `;
+      reportInstituteTableBody.appendChild(tr);
+    });
+
+    reportInstituteTableBody.querySelectorAll('[data-select-report-inst]').forEach((btn) => {
+      btn.addEventListener('click', () => selectReportInstitute(btn.dataset.selectReportInst));
+    });
+  }
+
+  if (reportInstituteSearchInput) {
+    reportInstituteSearchInput.addEventListener('input', renderReportInstituteList);
+  }
+
+  function selectReportInstitute(key) {
+    const inst = institutes.find((i) => i.key === key);
+    if (!inst) return;
+
+    selectedReportInstitute = inst;
+    reportSelectedInstituteName.textContent = inst.name;
+    reportInstituteStep.classList.add('d-none');
+    reportViewStep.classList.remove('d-none');
+    loadInstituteReport(inst);
+  }
+
+  if (reportChangeInstituteBtn) {
+    reportChangeInstituteBtn.addEventListener('click', () => {
+      reportViewStep.classList.add('d-none');
+      reportInstituteStep.classList.remove('d-none');
+    });
+  }
+
+  async function loadInstituteReport(inst) {
+    reportEmpty.classList.add('d-none');
+    reportSessionsWrap.classList.add('d-none');
+    reportSessionsWrap.innerHTML = '';
+    reportLoading.classList.remove('d-none');
+
+    try {
+      const resultsCol = collection(db, 'institutes', inst.key, 'results');
+      const snap = await getDocs(resultsCol);
+
+      reportLoading.classList.add('d-none');
+
+      if (snap.empty) {
+        reportEmpty.classList.remove('d-none');
+        return;
+      }
+
+      // Group: session -> className -> examName -> student count
+      const bySession = {};
+      snap.docs.forEach((d) => {
+        const data = d.data();
+        const session   = data.session || '—';
+        const className = data.className || '—';
+        const examName  = data.examName || '—';
+        if (!bySession[session]) bySession[session] = {};
+        if (!bySession[session][className]) bySession[session][className] = {};
+        if (!bySession[session][className][examName]) bySession[session][className][examName] = 0;
+        bySession[session][className][examName] += 1;
+      });
+
+      const knownSessions = inst.sessions || [];
+      const sessionOrder = knownSessions.filter((s) => bySession[s]);
+      Object.keys(bySession).forEach((s) => { if (!sessionOrder.includes(s)) sessionOrder.push(s); });
+
+      const knownClasses = inst.classes || [];
+
+      reportSessionsWrap.innerHTML = sessionOrder.map((session) => {
+        const classGroups = bySession[session];
+        const classOrder = knownClasses.filter((c) => classGroups[c]);
+        Object.keys(classGroups).forEach((c) => { if (!classOrder.includes(c)) classOrder.push(c); });
+
+        const rows = classOrder.map((className) => {
+          const exams = classGroups[className];
+          return Object.keys(exams).sort().map((examName) => `
+            <tr>
+              <td>${escapeHtml(className)}</td>
+              <td>${escapeHtml(examName)}</td>
+              <td>${escapeHtml(exams[examName])} জন</td>
+            </tr>
+          `).join('');
+        }).join('');
+
+        return `
+          <div class="activity-card" style="margin-bottom: 18px;">
+            <div class="activity-header" style="margin-bottom: 10px;">
+              <h3 style="font-size: 1.02rem;"><i class="fa-solid fa-calendar-days" aria-hidden="true" style="margin-inline-end:8px; color: var(--primary);"></i>${escapeHtml(session)}</h3>
+              <span class="activity-header-tag">${escapeHtml(classOrder.length)}টি শ্রেণি</span>
+            </div>
+            <div class="table-responsive">
+              <table class="activity-table">
+                <thead>
+                  <tr>
+                    <th scope="col">শ্রেণি</th>
+                    <th scope="col">পরীক্ষা</th>
+                    <th scope="col">শিক্ষার্থী</th>
+                  </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      reportSessionsWrap.classList.remove('d-none');
+    } catch (err) {
+      console.error('Load institute report failed:', err);
+      reportLoading.classList.add('d-none');
+      reportEmpty.classList.remove('d-none');
+    }
+  }
 
   /* ---------------------------------------------------------
      Result Edit modal — edit name + subject marks, then
