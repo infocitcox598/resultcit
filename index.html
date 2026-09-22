@@ -4521,7 +4521,14 @@ table.tab-sheet-table tbody tr:nth-child(even) {
         <div class="activity-card" id="resultListCard" style="display: none;">
           <div class="activity-header">
             <h3 id="resultListTitle">ফলাফল তালিকা</h3>
-            <span class="activity-header-tag" id="resultListCount">০ জন</span>
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <label class="rank-toggle-wrap" id="resultPublishToggleWrap" title="শিক্ষার্থীদের জন্য প্রকাশ/অপ্রকাশ" style="margin-top: 0;">
+                <input type="checkbox" class="rank-toggle-input" id="resultPublishToggleInput">
+                <span class="rank-toggle-slider"></span>
+                <span class="rank-toggle-label">শিক্ষার্থীদের জন্য প্রকাশিত</span>
+              </label>
+              <span class="activity-header-tag" id="resultListCount">০ জন</span>
+            </div>
           </div>
           <div class="table-responsive">
             <table class="activity-table" id="resultListTable">
@@ -5217,14 +5224,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const q = query(examsCol, where('session', '==', session), where('className', '==', className));
         const snap = await getDocs(q);
 
-        if (snap.empty) {
+        const publishedDocs = snap.docs.filter((d) => d.data().published !== false);
+
+        if (publishedDocs.length === 0) {
           pubExamSelect.innerHTML = '<option value="">কোনো পরীক্ষা পাওয়া যায়নি</option>';
           pubExamSelect.disabled = true;
           pubUpdateSearchBtnState();
           return;
         }
 
-        const names = snap.docs.map((d) => d.data().name).sort();
+        const names = publishedDocs.map((d) => d.data().name).sort();
         pubExamSelect.innerHTML = '<option value="">পরীক্ষা নির্বাচন করুন</option>' +
           names.map((n) => `<option value="${pubEscapeHtml(n)}">${pubEscapeHtml(n)}</option>`).join('');
         pubExamSelect.disabled = false;
@@ -5267,6 +5276,22 @@ document.addEventListener('DOMContentLoaded', () => {
       setPubSearchLoading(true);
 
       try {
+        const examsCol = collection(db, 'institutes', pubInstitute.key, 'exams');
+        const examQ = query(
+          examsCol,
+          where('session', '==', session),
+          where('className', '==', className),
+          where('name', '==', examName)
+        );
+        const examSnap = await getDocs(examQ);
+        const examDoc = examSnap.docs[0];
+
+        if (examDoc && examDoc.data().published === false) {
+          showPubSearchError('এই পরীক্ষার ফলাফল এখনো প্রকাশ করা হয়নি।');
+          setPubSearchLoading(false);
+          return;
+        }
+
         const resultsCol = collection(db, 'institutes', pubInstitute.key, 'results');
         const q = query(
           resultsCol,
@@ -5737,6 +5762,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const resultListEmpty     = document.getElementById('resultListEmpty');
   const resultListCard      = document.getElementById('resultListCard');
   const resultListCount     = document.getElementById('resultListCount');
+  const resultPublishToggleWrap  = document.getElementById('resultPublishToggleWrap');
+  const resultPublishToggleInput = document.getElementById('resultPublishToggleInput');
   const resultListTableBody = document.getElementById('resultListTableBody');
   const resultListDeleteAlert     = document.getElementById('resultListDeleteAlert');
   const resultListDeleteAlertText = document.getElementById('resultListDeleteAlertText');
@@ -8612,6 +8639,8 @@ document.addEventListener('DOMContentLoaded', () => {
      ========================================================= */
 
   let currentListExamName = null;
+  let currentListExamKey = null;
+  let currentExamListRows = [];
 
   function showResultListState(state) {
     // state: 'prompt' | 'exam-empty' | 'exam-list' | 'empty' | 'list'
@@ -8632,6 +8661,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!listSessionSelect || !currentInstitute) return;
     resultListDeleteAlert.classList.add('d-none');
     currentListExamName = null;
+    currentListExamKey = null;
 
     const sessions = currentInstitute.sessions || [];
     const classes  = currentInstitute.classes || [];
@@ -8669,6 +8699,7 @@ document.addEventListener('DOMContentLoaded', () => {
   --------------------------------------------------------- */
   async function loadExamListForFilter() {
     currentListExamName = null;
+    currentListExamKey = null;
     resultListDeleteAlert.classList.add('d-none');
 
     const session   = listSessionSelect.value;
@@ -8683,14 +8714,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const examsCol = collection(db, 'institutes', currentInstitute.key, 'exams');
       const q = query(examsCol, where('session', '==', session), where('className', '==', className));
       const snap = await getDocs(q);
-      const examNames = snap.docs.map((d) => d.data().name);
+      currentExamListRows = snap.docs.map((d) => ({ key: d.id, ...d.data() }));
 
-      if (examNames.length === 0) {
+      if (currentExamListRows.length === 0) {
         showResultListState('exam-empty');
         return;
       }
 
-      renderExamListTable(examNames);
+      renderExamListTable(currentExamListRows);
       showResultListState('exam-list');
     } catch (err) {
       console.error('Load exam list failed:', err);
@@ -8698,17 +8729,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function renderExamListTable(examNames) {
-    examListCount.textContent = `${examNames.length}টি পরীক্ষা`;
+  function renderExamListTable(examRows) {
+    examListCount.textContent = `${examRows.length}টি পরীক্ষা`;
     examListTableBody.innerHTML = '';
 
-    examNames.forEach((name) => {
+    examRows.forEach((exam) => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${escapeHtml(name)}</td>
+        <td>${escapeHtml(exam.name)}</td>
         <td>
           <div class="row-actions">
-            <button type="button" class="btn-cancel-edit" data-view-exam="${escapeHtml(name)}">
+            <button type="button" class="btn-cancel-edit" data-view-exam="${escapeHtml(exam.name)}">
               <i class="fa-solid fa-eye" aria-hidden="true"></i>
               দেখুন
             </button>
@@ -8728,13 +8759,40 @@ document.addEventListener('DOMContentLoaded', () => {
   --------------------------------------------------------- */
   function viewExamResults(examName) {
     currentListExamName = examName;
+    const examRow = currentExamListRows.find((ex) => ex.name === examName);
+    currentListExamKey = examRow ? examRow.key : null;
+    resultPublishToggleInput.checked = !examRow || examRow.published !== false;
     resultListTitle.textContent = `"${examName}" — ফলাফল তালিকা`;
     fetchAndRenderResultList();
+  }
+
+  if (resultPublishToggleInput) {
+    resultPublishToggleInput.addEventListener('change', async () => {
+      if (!currentListExamKey) return;
+      const nextValue = resultPublishToggleInput.checked;
+      resultPublishToggleInput.disabled = true;
+      try {
+        await updateDoc(doc(db, 'institutes', currentInstitute.key, 'exams', currentListExamKey), { published: nextValue });
+        const examRow = currentExamListRows.find((ex) => ex.key === currentListExamKey);
+        if (examRow) examRow.published = nextValue;
+        resultListDeleteAlertText.textContent = nextValue
+          ? 'ফলাফল শিক্ষার্থীদের জন্য প্রকাশ করা হয়েছে।'
+          : 'ফলাফল শিক্ষার্থীদের জন্য বন্ধ করা হয়েছে।';
+        resultListDeleteAlert.classList.remove('d-none');
+      } catch (err) {
+        console.error('Update publish status failed:', err);
+        resultPublishToggleInput.checked = !nextValue;
+        window.alert('প্রকাশ/অপ্রকাশ অবস্থা পরিবর্তন করা যায়নি। আবার চেষ্টা করুন।');
+      } finally {
+        resultPublishToggleInput.disabled = false;
+      }
+    });
   }
 
   if (resultListBackBtn) {
     resultListBackBtn.addEventListener('click', () => {
       currentListExamName = null;
+      currentListExamKey = null;
       resultListDeleteAlert.classList.add('d-none');
       showResultListState('exam-list');
     });
