@@ -1738,6 +1738,61 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
   color: #FCA5A5;
 }
 
+/* ---- Merit-rank on/off toggle (institute list) ---- */
+
+.rank-toggle-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.rank-toggle-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.rank-toggle-slider {
+  position: relative;
+  display: inline-block;
+  width: 34px;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.35);
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.rank-toggle-slider::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s ease;
+}
+
+.rank-toggle-input:checked + .rank-toggle-slider {
+  background: #10B981;
+}
+
+.rank-toggle-input:checked + .rank-toggle-slider::before {
+  transform: translateX(16px);
+}
+
+.rank-toggle-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
 /* ---- Dashboard responsive ---- */
 
 @media (max-width: 992px) {
@@ -2937,7 +2992,7 @@ table.tab-sheet-table tbody tr:nth-child(even) {
               <tr>
                 <td class="ti-label">গ্রেড</td>
                 <td class="ti-value ti-strong" id="pubTGrade">&mdash;</td>
-                <td class="ti-label">মেধা ক্রম</td>
+                <td class="ti-label" id="pubTRankLabel">মেধা ক্রম</td>
                 <td class="ti-value ti-strong" id="pubTRank">&mdash;</td>
               </tr>
             </tbody>
@@ -4179,7 +4234,7 @@ table.tab-sheet-table tbody tr:nth-child(even) {
             ফলাফল আপলোড করুন
           </h3>
           <p class="settings-card-desc">
-            সেশন, শ্রেণি ও পরীক্ষা নির্বাচন করে Excel/CSV ফাইল আপলোড করুন। ফাইলের প্রথম দুই কলাম হতে হবে <strong>রোল</strong> ও <strong>নাম</strong>, এরপরের কলামগুলো বিষয়ের নাম ও প্রাপ্ত নম্বর। কোনো বিষয়ে শিক্ষার্থী অনুপস্থিত থাকলে সেই ঘর খালি রাখুন অথবা "অনু"/"AB" লিখুন — সেই বিষয়ে GPA/গ্রেড হিসাব হবে না, শুধু মোট নম্বরে বাকি বিষয়গুলো যোগ হবে এবং সামগ্রিক ফলাফলে "অনু" দেখাবে। একই সেশন/শ্রেণি/পরীক্ষার জন্য পুনরায় আপলোড করলে আগের ফলাফল প্রতিস্থাপিত হবে।
+            সেশন, শ্রেণি ও পরীক্ষা নির্বাচন করে Excel/CSV ফাইল আপলোড করুন। ফাইলের প্রথম দুই কলাম হতে হবে <strong>রোল</strong> ও <strong>নাম</strong>, এরপরের কলামগুলো বিষয়ের নাম ও প্রাপ্ত নম্বর। কোনো বিষয়ে শিক্ষার্থী অনুপস্থিত থাকলে সেই ঘর খালি রাখুন অথবা "অনু"/"AB" লিখুন — সেই বিষয়ে GPA/গ্রেড হিসাব হবে না, শুধু মোট নম্বরে বাকি বিষয়গুলো যোগ হবে এবং সামগ্রিক ফলাফলে "অনু" দেখাবে। কোনো বিষয়ের ঘরে "NO" লিখলে সেই ঘরে "হিফজ" দেখাবে এবং সেই বিষয়টি বাদ দিয়ে (মোট নম্বর ও GPA থেকেও বাদ দিয়ে) বাকি ফলাফল গণনা হবে। একই সেশন/শ্রেণি/পরীক্ষার জন্য পুনরায় আপলোড করলে আগের ফলাফল প্রতিস্থাপিত হবে।
           </p>
 
           <div id="resultUploadAlert" class="alert-box alert-box--success d-none" role="alert" aria-live="polite">
@@ -4340,7 +4395,7 @@ table.tab-sheet-table tbody tr:nth-child(even) {
                 <tr>
                   <td class="ti-label">গ্রেড</td>
                   <td class="ti-value ti-strong" id="tGrade">&mdash;</td>
-                  <td class="ti-label">মেধা ক্রম</td>
+                  <td class="ti-label" id="tRankLabel">মেধা ক্রম</td>
                   <td class="ti-value ti-strong" id="tRank">&mdash;</td>
                 </tr>
               </tbody>
@@ -5058,6 +5113,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pubTGpa      = document.getElementById('pubTGpa');
     const pubTGrade    = document.getElementById('pubTGrade');
     const pubTRank     = document.getElementById('pubTRank');
+    const pubTRankLabel = document.getElementById('pubTRankLabel');
     const pubTSubjectsBody = document.getElementById('pubTSubjectsBody');
 
     let pubInstitute = null; // { key, name, sessions, classes }
@@ -5111,7 +5167,8 @@ document.addEventListener('DOMContentLoaded', () => {
           bannerUrl: data.bannerUrl || '',
           sessions: data.sessions || [],
           classes: data.classes || [],
-          grading: data.grading || []
+          grading: data.grading || [],
+          meritRankEnabled: data.meritRankEnabled !== false
         };
 
         pubBrandInstituteName.textContent = pubInstitute.name;
@@ -5264,7 +5321,18 @@ document.addEventListener('DOMContentLoaded', () => {
       pubTTotal.textContent   = r.totalMarks;
       pubTGpa.textContent     = isAbsentValue(r.grade) ? 'N/A' : Number(r.gpa).toFixed(2);
       pubTGrade.textContent   = isAbsentValue(r.grade) ? 'N/A' : r.grade;
-      pubTRank.textContent    = isAbsentValue(r.grade) ? 'N/A' : (rank != null ? rank : '-');
+
+      const rankEnabled = pubInstitute.meritRankEnabled !== false;
+      if (rankEnabled) {
+        pubTGrade.removeAttribute('colspan');
+        pubTRankLabel.classList.remove('d-none');
+        pubTRank.classList.remove('d-none');
+        pubTRank.textContent = isAbsentValue(r.grade) ? 'N/A' : (rank != null ? rank : '-');
+      } else {
+        pubTGrade.setAttribute('colspan', '3');
+        pubTRankLabel.classList.add('d-none');
+        pubTRank.classList.add('d-none');
+      }
 
       const order = Array.isArray(r.subjectOrder) && r.subjectOrder.length
         ? r.subjectOrder
@@ -5272,7 +5340,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       pubTSubjectsBody.innerHTML = order.map((subject) => {
         const mark = r.subjects && r.subjects[subject] != null ? r.subjects[subject] : 0;
-        const grade = isAbsentValue(mark) ? ABSENT_MARK : pubLookupGrade(mark).grade;
+        const grade = isAbsentValue(mark) ? ABSENT_MARK : (isHifzValue(mark) ? HIFZ_MARK : pubLookupGrade(mark).grade);
         return `
           <tr>
             <td>${pubEscapeHtml(subject)}</td>
@@ -5645,6 +5713,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const tGpa     = document.getElementById('tGpa');
   const tGrade   = document.getElementById('tGrade');
   const tRank    = document.getElementById('tRank');
+  const tRankLabel = document.getElementById('tRankLabel');
   const tSession = document.getElementById('tSession');
   const tSubjectsBody   = document.getElementById('tSubjectsBody');
   const transcriptPrintBtn = document.getElementById('transcriptPrintBtn');
@@ -7000,9 +7069,14 @@ document.addEventListener('DOMContentLoaded', () => {
      ========================================================= */
 
   const ABSENT_MARK = 'অনু';
+  const HIFZ_MARK = 'হিফজ';
 
   function isAbsentValue(v) {
     return v === ABSENT_MARK;
+  }
+
+  function isHifzValue(v) {
+    return v === HIFZ_MARK;
   }
 
   /* ---------------------------------------------------------
@@ -7058,6 +7132,9 @@ document.addEventListener('DOMContentLoaded', () => {
        GPA/grade is computed at all (grade becomes "অনু"); total
        marks still sums whatever subjects DO have a real mark.
        Absence takes priority over the fail rule.
+     - A subject marked "NO" (হিফজ) is excluded entirely from the
+       calculation — it doesn't count toward total marks, GPA, or
+       subject count, and can't itself trigger a fail.
   --------------------------------------------------------- */
   function computeResultSummary(subjects) {
     let total = 0;
@@ -7067,6 +7144,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let hasAbsent = false;
 
     Object.values(subjects).forEach((val) => {
+      if (isHifzValue(val)) return;
       if (isAbsentValue(val)) {
         hasAbsent = true;
         return;
@@ -7239,7 +7317,9 @@ document.addEventListener('DOMContentLoaded', () => {
      Sample file download — gives the institute a ready-made
      template with the expected columns. If they've uploaded
      results before, reuse those subject names; otherwise fall
-     back to a generic example set.
+     back to a generic example set. Includes example rows showing
+     a normal mark, an absent subject, and a "NO" (হিফজ) subject,
+     so institutes see exactly how those special cases are typed.
   --------------------------------------------------------- */
   if (downloadSampleBtn) {
     downloadSampleBtn.addEventListener('click', async () => {
@@ -7260,11 +7340,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const sampleRows = [
         { 'রোল': 1, 'নাম': 'মুহাম্মদ রাফি' },
-        { 'রোল': 2, 'নাম': 'ফাতিমা আক্তার' }
+        { 'রোল': 2, 'নাম': 'ফাতিমা আক্তার' },
+        { 'রোল': 3, 'নাম': 'আব্দুল্লাহ হাসান' },
+        { 'রোল': 4, 'নাম': 'আয়েশা সিদ্দিকা' }
       ];
       sampleRows.forEach((row, i) => {
-        subjectNames.forEach((sub) => {
-          row[sub] = i === 0 ? 95 : 88;
+        subjectNames.forEach((sub, si) => {
+          if (i === 0) {
+            row[sub] = 95;                          // স্বাভাবিক নম্বর
+          } else if (i === 1) {
+            row[sub] = 88;                           // স্বাভাবিক নম্বর
+          } else if (i === 2) {
+            row[sub] = si === 0 ? '' : 90;            // প্রথম বিষয়ে অনুপস্থিত (ঘর খালি)
+          } else {
+            row[sub] = si === 0 ? 'NO' : 92;          // প্রথম বিষয়ে হিফজ ("NO" লিখুন)
+          }
         });
       });
 
@@ -7346,6 +7436,10 @@ document.addEventListener('DOMContentLoaded', () => {
           subjectKeys.forEach((sk) => {
             const rawMark = row[sk];
             const trimmed = String(rawMark ?? '').trim();
+            if (/^no$/i.test(trimmed) || trimmed === HIFZ_MARK) {
+              subjects[sk] = HIFZ_MARK;
+              return;
+            }
             const mark = parseFloat(trimmed);
             if (trimmed === '' || Number.isNaN(mark)) {
               subjects[sk] = ABSENT_MARK;
@@ -7504,11 +7598,22 @@ document.addEventListener('DOMContentLoaded', () => {
     tTotal.textContent   = data.totalMarks;
     tGpa.textContent     = isAbsentValue(data.grade) ? 'N/A' : Number(data.gpa).toFixed(2);
     tGrade.textContent   = isAbsentValue(data.grade) ? 'N/A' : data.grade;
-    tRank.textContent    = isAbsentValue(data.grade) ? 'N/A' : (rank != null ? rank : '-');
+
+    const rankEnabled = currentInstitute.meritRankEnabled !== false;
+    if (rankEnabled) {
+      tGrade.removeAttribute('colspan');
+      tRankLabel.classList.remove('d-none');
+      tRank.classList.remove('d-none');
+      tRank.textContent = isAbsentValue(data.grade) ? 'N/A' : (rank != null ? rank : '-');
+    } else {
+      tGrade.setAttribute('colspan', '3');
+      tRankLabel.classList.add('d-none');
+      tRank.classList.add('d-none');
+    }
 
     tSubjectsBody.innerHTML = '';
     getOrderedSubjectEntries(data).forEach(([subject, mark]) => {
-      const grade = isAbsentValue(mark) ? ABSENT_MARK : lookupGrade(mark).grade;
+      const grade = isAbsentValue(mark) ? ABSENT_MARK : (isHifzValue(mark) ? HIFZ_MARK : lookupGrade(mark).grade);
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${escapeHtml(subject)}</td>
@@ -7834,9 +7939,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     institutes.forEach((inst) => {
       const tr = document.createElement('tr');
+      const rankOn = inst.meritRankEnabled !== false;
 
       tr.innerHTML = `
-        <td>${escapeHtml(inst.name)}</td>
+        <td>
+          ${escapeHtml(inst.name)}
+          <label class="rank-toggle-wrap" title="মেধাক্রম চালু/বন্ধ">
+            <input type="checkbox" class="rank-toggle-input" data-rank-toggle="${inst.key}" ${rankOn ? 'checked' : ''}>
+            <span class="rank-toggle-slider"></span>
+            <span class="rank-toggle-label">মেধাক্রম</span>
+          </label>
+        </td>
         <td>${escapeHtml(inst.address)}</td>
         <td>${escapeHtml(inst.mobile)}</td>
         <td>${escapeHtml(inst.loginId)}</td>
@@ -7880,6 +7993,22 @@ document.addEventListener('DOMContentLoaded', () => {
         icon.classList.toggle('fa-eye', !isMasked);
         icon.classList.toggle('fa-eye-slash', isMasked);
         btn.setAttribute('aria-label', isMasked ? 'পাসওয়ার্ড লুকান' : 'পাসওয়ার্ড দেখুন');
+      });
+    });
+    instituteTableBody.querySelectorAll('[data-rank-toggle]').forEach((input) => {
+      input.addEventListener('change', async () => {
+        const key = input.dataset.rankToggle;
+        const nextValue = input.checked;
+        input.disabled = true;
+        try {
+          await updateDoc(doc(db, 'institutes', key), { meritRankEnabled: nextValue });
+        } catch (err) {
+          console.error('Update merit-rank toggle failed:', err);
+          input.checked = !nextValue;
+          window.alert('মেধাক্রম চালু/বন্ধ করা যায়নি। আবার চেষ্টা করুন।');
+        } finally {
+          input.disabled = false;
+        }
       });
     });
   }
@@ -8859,18 +8988,18 @@ document.addEventListener('DOMContentLoaded', () => {
      enough space, and mark text shrinks a step further only if
      even that isn't enough.
   --------------------------------------------------------- */
-  function computeTabColumnLayout(subjectCount) {
+  function computeTabColumnLayout(subjectCount, summaryCount) {
     // Fixed print geometry: A4 landscape (297mm) minus the 10mm
     // @page margin and the sheet's own 10mm/12mm padding on each
     // side — this is a constant, not something to measure.
     const TABLE_WIDTH_PX = (297 - 2 * 10 - 2 * 12) * (96 / 25.4); // ≈ 956px
     const ROLL_W = 34;
-    const SUMMARY_W = 38; // each of মোট / জিপিএ / গ্রেড / মেধা ক্রম
+    const SUMMARY_W = 38; // each of মোট / জিপিএ / গ্রেড / (মেধা ক্রম, if enabled)
     const MIN_SUBJECT_W = 30;
     const MAX_NAME_W = 190;
     const MIN_NAME_W = 96;
 
-    const fixedW = ROLL_W + SUMMARY_W * 4;
+    const fixedW = ROLL_W + SUMMARY_W * summaryCount;
     let nameW = MAX_NAME_W;
     let subjectW = subjectCount > 0 ? (TABLE_WIDTH_PX - fixedW - nameW) / subjectCount : 0;
 
@@ -8895,6 +9024,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderTabulationSheet({ session, className, examName, rows, subjects }) {
     tabSheetPages.innerHTML = '';
 
+    const rankEnabled = currentInstitute.meritRankEnabled !== false;
+
     // Grade distribution + pass rate, computed only over students who
     // actually have a grade — absent students are excluded entirely
     // (not counted as pass, fail, or part of the total).
@@ -8913,7 +9044,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const passRate = gradedTotal > 0 ? ((passCount / gradedTotal) * 100).toFixed(2) : '0.00';
     const absentCount = rows.length - gradedTotal;
 
-    const colLayout = computeTabColumnLayout(subjects.length);
+    const colLayout = computeTabColumnLayout(subjects.length, rankEnabled ? 4 : 3);
     const markStyle = `font-size:${colLayout.markFontRem}rem;`;
     const rankMap = computeMeritRanks(rows);
 
@@ -8933,7 +9064,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <td>${escapeHtml(r.totalMarks)}</td>
           <td>${escapeHtml(isAbsentValue(r.grade) ? ABSENT_MARK : Number(r.gpa).toFixed(2))}</td>
           <td>${escapeHtml(r.grade)}</td>
-          <td>${escapeHtml(rank != null ? rank : '-')}</td>
+          ${rankEnabled ? `<td>${escapeHtml(rank != null ? rank : '-')}</td>` : ''}
         </tr>
       `;
     };
@@ -8982,7 +9113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <col style="width:${colLayout.summaryW}px">
         <col style="width:${colLayout.summaryW}px">
         <col style="width:${colLayout.summaryW}px">
-        <col style="width:${colLayout.summaryW}px">
+        ${rankEnabled ? `<col style="width:${colLayout.summaryW}px">` : ''}
       </colgroup>
     `;
 
@@ -8995,7 +9126,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <th>মোট</th>
           <th>জিপিএ</th>
           <th>গ্রেড</th>
-          <th>মেধা ক্রম</th>
+          ${rankEnabled ? '<th>মেধা ক্রম</th>' : ''}
         </tr>
       </thead>
     `;
@@ -9456,7 +9587,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <label class="form-label" for="${safeId}">${escapeHtml(subject)}</label>
         <div class="input-shell">
           <span class="input-icon" aria-hidden="true"><i class="fa-solid fa-hashtag"></i></span>
-          <input type="text" class="form-control custom-input" id="${safeId}" data-subject="${escapeHtml(subject)}" value="${escapeHtml(isAbsentValue(mark) ? '' : mark)}" placeholder="০-১০০, খালি রাখলে অনুপস্থিত">
+          <input type="text" class="form-control custom-input" id="${safeId}" data-subject="${escapeHtml(subject)}" value="${escapeHtml(isAbsentValue(mark) ? '' : (isHifzValue(mark) ? 'NO' : mark))}" placeholder="০-১০০, খালি রাখলে অনুপস্থিত, হিফজের জন্য NO">
         </div>
       `;
       resultEditSubjectsGrid.appendChild(group);
@@ -9505,6 +9636,11 @@ document.addEventListener('DOMContentLoaded', () => {
           subjectOrder.push(input.dataset.subject);
           return;
         }
+        if (trimmed === HIFZ_MARK || /^no$/i.test(trimmed)) {
+          subjects[input.dataset.subject] = HIFZ_MARK;
+          subjectOrder.push(input.dataset.subject);
+          return;
+        }
         const mark = parseFloat(trimmed);
         if (Number.isNaN(mark) || mark < 0 || mark > 100) {
           hasInvalid = true;
@@ -9515,7 +9651,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       if (hasInvalid) {
-        resultEditErrorText.textContent = 'নম্বর ০ থেকে ১০০ এর মধ্যে হতে হবে, অথবা অনুপস্থিতের জন্য ঘরটি খালি রাখুন।';
+        resultEditErrorText.textContent = 'নম্বর ০ থেকে ১০০ এর মধ্যে হতে হবে, হিফজের জন্য NO লিখুন, অথবা অনুপস্থিতের জন্য ঘরটি খালি রাখুন।';
         resultEditErrorAlert.classList.remove('d-none');
         return;
       }
