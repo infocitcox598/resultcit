@@ -7110,12 +7110,12 @@ document.addEventListener('DOMContentLoaded', () => {
      Merit rank (মেধা ক্রম) for a group of results from the same
      session + class + exam: ordered by GPA (highest first); ties
      broken by total marks (highest first); any still-remaining
-     tie broken by roll number (earlier roll first). Absent
-     students receive no rank. Returns a Map from each row object
-     to its 1-based rank.
+     tie broken by roll number (earlier roll first). Absent and
+     failed ("F") students receive no rank. Returns a Map from
+     each row object to its 1-based rank.
   --------------------------------------------------------- */
   function computeMeritRanks(rows) {
-    const ranked = rows.filter((r) => !isAbsentValue(r.grade));
+    const ranked = rows.filter((r) => !isAbsentValue(r.grade) && r.grade !== 'F');
     ranked.sort((a, b) => {
       const gpaDiff = Number(b.gpa) - Number(a.gpa);
       if (gpaDiff !== 0) return gpaDiff;
