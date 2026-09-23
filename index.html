@@ -8318,6 +8318,9 @@ document.addEventListener('DOMContentLoaded', () => {
           });
         });
 
+        const rankEnabled = selectedBackupInstitute.meritRankEnabled !== false;
+        const rankMap = rankEnabled ? computeMeritRanks(rows) : null;
+
         const sheetRows = rows.map((r) => {
           const row = { 'রোল': r.roll, 'নাম': r.name };
           subjects.forEach((s) => {
@@ -8326,6 +8329,10 @@ document.addEventListener('DOMContentLoaded', () => {
           row['মোট নম্বর'] = r.totalMarks;
           row['জিপিএ'] = isAbsentValue(r.grade) ? 'N/A' : r.gpa;
           row['গ্রেড'] = r.grade;
+          if (rankEnabled) {
+            const rank = rankMap.get(r);
+            row['মেধা ক্রম'] = rank != null ? rank : '-';
+          }
           return row;
         });
 
