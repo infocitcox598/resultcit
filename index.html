@@ -1400,6 +1400,69 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
   background: rgba(239, 68, 68, 0.6);
 }
 
+/* ---- মেধাক্রম tie-break rows (Step 2) ---- */
+
+.tiebreak-row {
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.tiebreak-row-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.tiebreak-order-badge {
+  flex-shrink: 0;
+  min-width: 44px;
+  text-align: center;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(59, 130, 246, 0.18);
+  color: #93C5FD;
+  font-weight: 700;
+  font-size: 0.82rem;
+}
+
+.tiebreak-row-main select {
+  flex: 1;
+  min-width: 160px;
+}
+
+.tiebreak-select-shell {
+  flex: 1;
+  min-width: 160px;
+}
+
+.tiebreak-select-shell .custom-select {
+  width: 100%;
+}
+
+.tiebreak-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.tiebreak-subject-adder {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.tiebreak-subject-adder input {
+  flex: 1;
+}
+
+.tiebreak-subject-tags {
+  margin-top: 10px;
+}
+
 @media (max-width: 480px) {
   .tag-add-form {
     flex-direction: column;
@@ -2488,7 +2551,7 @@ table.pub-marks-table td.num, table.pub-marks-table th.num { text-align: right; 
 table.tab-sheet-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.72rem;
+  font-size: 12px;
   table-layout: fixed;
 }
 
@@ -2527,10 +2590,34 @@ table.tab-sheet-table thead th {
   background: #1E3A8A;
   color: #fff;
   font-weight: 600;
-  font-size: 0.68rem;
+  font-size: 12px;
   position: sticky;
   top: -1px;
   z-index: 10;
+}
+
+/* Subject columns through মেধা ক্রম: title rotated vertical
+   (reads bottom-to-top) so narrow columns stay narrow no matter
+   how many subjects there are, instead of wrapping the label
+   across several lines and pushing the header row very tall. */
+table.tab-sheet-table thead th.tab-th-vertical {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  white-space: nowrap;
+  height: 92px;
+  padding: 8px 4px;
+  vertical-align: middle;
+}
+
+/* A subject name too long to fit as one vertical line (within the
+   header's height cap) wraps into multiple lines — like a short
+   paragraph — instead of stretching the header row taller and
+   taller. In vertical-rl, "height" is the wrap point and extra
+   lines grow the column's width instead. */
+table.tab-sheet-table thead th.tab-th-wrap {
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.15;
 }
 
 table.tab-sheet-table td.tab-cell-name {
@@ -2539,12 +2626,18 @@ table.tab-sheet-table td.tab-cell-name {
   text-overflow: ellipsis;
 }
 
-/* Subject marks read as the important number on the sheet — a
-   little larger and bolder than the roll/name/grade text, without
-   touching the column width itself. */
+/* Subject marks are the bulk of the sheet's data, so they stay
+   at normal weight — only the summary columns (মোট/জিপিএ/গ্রেড/
+   মেধা ক্রম) are bold, so the eye is drawn to the outcome, not
+   every individual mark. */
 table.tab-sheet-table td.tab-cell-mark {
-  font-size: 0.86rem;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 400;
+  color: #0F172A;
+}
+
+table.tab-sheet-table td.tab-cell-summary {
+  font-weight: 700;
   color: #0F172A;
 }
 
@@ -3926,6 +4019,10 @@ table.tab-sheet-table tbody tr:nth-child(even) {
           <i class="fa-solid fa-ranking-star" aria-hidden="true"></i>
           <span>গ্রেডিং সিস্টেম</span>
         </a>
+        <a href="#" class="nav-item" data-inst-nav="merit-rank">
+          <i class="fa-solid fa-trophy" aria-hidden="true"></i>
+          <span>মেধাক্রম নির্ণয়</span>
+        </a>
         <a href="#" class="nav-item" data-inst-nav="results">
           <i class="fa-solid fa-file-circle-check" aria-hidden="true"></i>
           <span>ফলাফল</span>
@@ -4215,6 +4312,77 @@ table.tab-sheet-table tbody tr:nth-child(even) {
                 <!-- Rows injected by JS -->
               </tbody>
             </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ INSTITUTE PAGE: MERIT RANK SETUP ============ -->
+      <div id="instPageMeritRank" class="dashboard-page d-none">
+
+        <div id="meritRankAlert" class="alert-box alert-box--success d-none" role="alert" aria-live="polite">
+          <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+          <span id="meritRankAlertText">মেধাক্রমের নিয়ম সফলভাবে সংরক্ষণ হয়েছে।</span>
+        </div>
+
+        <div class="settings-card">
+          <h3 class="settings-card-title">
+            <i class="fa-solid fa-trophy" aria-hidden="true"></i>
+            মেধাক্রম নিয়ম
+          </h3>
+          <p class="settings-card-desc">
+            ফলাফলে (ট্রান্সক্রিপ্ট, টেবুলেশন শীট) শিক্ষার্থীদের মেধাক্রম কীভাবে নির্ণয় হবে তা নিয়ন্ত্রণ করুন।
+          </p>
+
+          <div class="form-group" style="display: flex; align-items: center; justify-content: space-between; gap: 16px; max-width: 480px;">
+            <label for="meritRankCustomToggle" class="form-label" style="margin: 0;">নিজের প্রতিষ্ঠানের নিয়মে মেধাক্রম</label>
+            <label class="rank-toggle-wrap" style="margin-top: 0;">
+              <input type="checkbox" class="rank-toggle-input" id="meritRankCustomToggle">
+              <span class="rank-toggle-slider"></span>
+            </label>
+          </div>
+
+          <div id="meritRankCustomFields">
+            <div class="form-group" style="max-width: 420px;">
+              <label for="meritRankBasisSelect" class="form-label">ধাপ ১: কিসের ভিত্তিতে মেধাক্রম হবে?</label>
+              <div class="input-shell">
+                <span class="input-icon" aria-hidden="true"><i class="fa-solid fa-trophy"></i></span>
+                <select class="form-control custom-input custom-select" id="meritRankBasisSelect">
+                  <option value="average">গড় নম্বর (শতকরা)</option>
+                  <option value="totalMarks">মোট নম্বর</option>
+                  <option value="gpa">জিপিএ</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">ধাপ ২: সমান হলে কোন বিষয় আগে দেখা হবে?</label>
+              <p class="settings-card-desc" style="margin: 0 0 10px;">
+                একটি বা একাধিক অগ্রাধিকার যোগ করুন। ধাপ ১-এ সমান হলে এই ক্রম অনুযায়ী পরীক্ষা করা হবে।
+              </p>
+              <div id="meritRankTiebreakList"><!-- Rows injected by JS --></div>
+              <button type="button" class="btn-cancel-edit" id="meritRankAddTiebreakBtn">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                অগ্রাধিকার যোগ করুন
+              </button>
+            </div>
+
+            <div class="form-group" style="max-width: 420px;">
+              <label for="meritRankTieModeSelect" class="form-label">ধাপ ৩: সবকিছুতে সমান হলে?</label>
+              <div class="input-shell">
+                <span class="input-icon" aria-hidden="true"><i class="fa-solid fa-scale-balanced"></i></span>
+                <select class="form-control custom-input custom-select" id="meritRankTieModeSelect">
+                  <option value="same">একই ক্রম দিন (যেমন: ২, ২, ৩)</option>
+                  <option value="roll">রোল নম্বর অনুযায়ী আলাদা ক্রম দিন</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="institute-form-actions">
+            <button type="button" class="btn btn-login settings-save-btn" id="meritRankSaveBtn">
+              <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+              সংরক্ষণ করুন
+            </button>
           </div>
         </div>
       </div>
@@ -5175,7 +5343,11 @@ document.addEventListener('DOMContentLoaded', () => {
           sessions: data.sessions || [],
           classes: data.classes || [],
           grading: data.grading || [],
-          meritRankEnabled: data.meritRankEnabled !== false
+          meritRankEnabled: data.meritRankEnabled !== false,
+          meritRankCustomEnabled: data.meritRankCustomEnabled === true,
+          meritRankBasis: data.meritRankBasis || 'gpa',
+          meritRankTiebreaks: Array.isArray(data.meritRankTiebreaks) ? data.meritRankTiebreaks : [],
+          meritRankTieMode: data.meritRankTieMode === 'same' ? 'same' : 'roll'
         };
 
         pubBrandInstituteName.textContent = pubInstitute.name;
@@ -5309,7 +5481,7 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
 
-        const rankMap = computeMeritRanks(rows);
+        const rankMap = computeMeritRanks(rows, getMeritRankBasis(pubInstitute), getMeritRankTiebreaks(pubInstitute), getMeritRankTieMode(pubInstitute));
         pubRenderResult(match, rankMap.get(match));
         pubSearchBox.classList.add('d-none');
         pubResultBox.classList.remove('d-none');
@@ -5636,6 +5808,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const instPageOverview    = document.getElementById('instPageOverview');
   const instPageExams       = document.getElementById('instPageExams');
   const instPageGrading     = document.getElementById('instPageGrading');
+  const instPageMeritRank        = document.getElementById('instPageMeritRank');
+  const meritRankAlert           = document.getElementById('meritRankAlert');
+  const meritRankAlertText       = document.getElementById('meritRankAlertText');
+  const meritRankCustomToggle    = document.getElementById('meritRankCustomToggle');
+  const meritRankCustomFields    = document.getElementById('meritRankCustomFields');
+  const meritRankBasisSelect     = document.getElementById('meritRankBasisSelect');
+  const meritRankTiebreakList    = document.getElementById('meritRankTiebreakList');
+  const meritRankAddTiebreakBtn  = document.getElementById('meritRankAddTiebreakBtn');
+  const meritRankTieModeSelect   = document.getElementById('meritRankTieModeSelect');
+  const meritRankSaveBtn         = document.getElementById('meritRankSaveBtn');
   const instPageResults     = document.getElementById('instPageResults');
   const instPageSearchResult = document.getElementById('instPageSearchResult');
   const instPageTabulation  = document.getElementById('instPageTabulation');
@@ -6334,6 +6516,7 @@ document.addEventListener('DOMContentLoaded', () => {
     overview: 'ওভারভিউ',
     exams: 'পরীক্ষা',
     grading: 'গ্রেডিং সিস্টেম',
+    'merit-rank': 'মেধাক্রম নির্ণয়',
     results: 'ফলাফল',
     'search-result': 'ফলাফল খুঁজুন',
     'result-list': 'ফলাফল তালিকা',
@@ -6347,6 +6530,7 @@ document.addEventListener('DOMContentLoaded', () => {
     instPageOverview.classList.add('d-none');
     instPageExams.classList.add('d-none');
     instPageGrading.classList.add('d-none');
+    instPageMeritRank.classList.add('d-none');
     instPageResults.classList.add('d-none');
     instPageSearchResult.classList.add('d-none');
     instPageResultList.classList.add('d-none');
@@ -6365,6 +6549,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!gradingEditingIndex && gradingEditingIndex !== 0) resetGradingForm();
       renderGradingTable();
       instPageGrading.classList.remove('d-none');
+    } else if (key === 'merit-rank') {
+      renderMeritRankPage();
+      instPageMeritRank.classList.remove('d-none');
     } else if (key === 'results') {
       renderUploadPickers();
       applyPaymentGate();
@@ -7108,27 +7295,296 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* ---------------------------------------------------------
      Merit rank (মেধা ক্রম) for a group of results from the same
-     session + class + exam: ordered by GPA (highest first); ties
-     broken by total marks (highest first); any still-remaining
-     tie broken by roll number (earlier roll first). Absent and
-     failed ("F") students receive no rank. Returns a Map from
-     each row object to its 1-based rank.
+     session + class + exam: ordered by the institute's chosen
+     basis (GPA, total marks, or average marks %) — highest
+     first; ties broken by the other two measures, then by roll
+     number (earlier roll first). Absent and failed ("F")
+     students receive no rank. Returns a Map from each row object
+     to its 1-based rank.
   --------------------------------------------------------- */
-  function computeMeritRanks(rows) {
+  function getGradedSubjectCount(r) {
+    if (!r.subjects) return 0;
+    return Object.values(r.subjects).filter((v) => !isAbsentValue(v) && !isHifzValue(v)).length;
+  }
+
+  function getAverageMarks(r) {
+    const count = getGradedSubjectCount(r);
+    return count > 0 ? Number(r.totalMarks) / count : 0;
+  }
+
+  function computeMeritRanks(rows, basis, tiebreaks, tieMode) {
+    const rules = Array.isArray(tiebreaks) ? tiebreaks.filter((r) => r && r.type) : [];
+    const mode = tieMode === 'same' ? 'same' : 'roll';
+
+    const scoreFor = (r, type, subjectName) => {
+      if (type === 'totalMarks') return Number(r.totalMarks);
+      if (type === 'average') return Math.round((getAverageMarks(r) + Number.EPSILON) * 100) / 100;
+      if (type === 'subject') {
+        const mark = r.subjects ? r.subjects[subjectName] : undefined;
+        const n = Number(mark);
+        return Number.isFinite(n) ? n : -1; // absent/হিফজ/না-থাকা বিষয় সবার শেষে
+      }
+      return Number(r.gpa); // gpa
+    };
+
+    // ধাপ ১ (প্রধান ভিত্তি) + ধাপ ২ (অগ্রাধিকার ক্রম) মিলিয়ে একটি
+    // স্কোর-কী তৈরি করে — দুই শিক্ষার্থীর কী হুবহু মিললে তারা সত্যিকার
+    // অর্থে সমান (ধাপ ৩-এর সিদ্ধান্ত এখান থেকেই নেওয়া হয়)।
+    const getScoreKey = (r) => {
+      const key = [scoreFor(r, basis)];
+      if (rules.length > 0) {
+        rules.forEach((rule) => {
+          if (rule.type === 'subject') {
+            (rule.subjects || []).forEach((name) => key.push(scoreFor(r, 'subject', name)));
+          } else {
+            key.push(scoreFor(r, rule.type));
+          }
+        });
+      } else if (basis === 'totalMarks' || basis === 'average') {
+        key.push(Number(r.gpa));
+      } else {
+        key.push(Number(r.totalMarks));
+      }
+      return key;
+    };
+
+    const arraysEqual = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
+
     const ranked = rows.filter((r) => !isAbsentValue(r.grade) && r.grade !== 'F');
     ranked.sort((a, b) => {
-      const gpaDiff = Number(b.gpa) - Number(a.gpa);
-      if (gpaDiff !== 0) return gpaDiff;
-      const totalDiff = Number(b.totalMarks) - Number(a.totalMarks);
-      if (totalDiff !== 0) return totalDiff;
+      const keyA = getScoreKey(a);
+      const keyB = getScoreKey(b);
+      for (let i = 0; i < keyA.length; i++) {
+        const diff = keyB[i] - keyA[i];
+        if (diff !== 0) return diff;
+      }
+
+      // ধাপ ৩: সবকিছুতে সমান হলে —
+      // "একই ক্রম দিন" মোডে তারা সমানই থাকবে (নিচে র্যাঙ্ক একসাথে বসবে);
+      // "রোল অনুযায়ী আলাদা ক্রম দিন" মোডে রোল নম্বর দিয়ে চূড়ান্ত ক্রম হবে।
+      if (mode === 'same') return 0;
       const an = parseFloat(a.roll);
       const bn = parseFloat(b.roll);
       if (!Number.isNaN(an) && !Number.isNaN(bn)) return an - bn;
       return String(a.roll).localeCompare(String(b.roll));
     });
+
     const rankMap = new Map();
-    ranked.forEach((r, i) => rankMap.set(r, i + 1));
+    if (mode === 'same') {
+      let rankCounter = 0;
+      let prevKey = null;
+      ranked.forEach((r) => {
+        const key = getScoreKey(r);
+        if (!prevKey || !arraysEqual(key, prevKey)) rankCounter += 1;
+        rankMap.set(r, rankCounter);
+        prevKey = key;
+      });
+    } else {
+      ranked.forEach((r, i) => rankMap.set(r, i + 1));
+    }
     return rankMap;
+  }
+
+  /* ---------------------------------------------------------
+     মেধাক্রম নির্ণয় page — lets the institute choose how their
+     own merit rank is calculated (Step 1: GPA / total marks /
+     average marks %). Falls back to GPA when the institute
+     hasn't turned on a custom rule.
+  --------------------------------------------------------- */
+  function getMeritRankBasis(inst) {
+    if (!inst) return 'gpa';
+    return inst.meritRankCustomEnabled === true ? (inst.meritRankBasis || 'gpa') : 'gpa';
+  }
+
+  function getMeritRankTiebreaks(inst) {
+    if (!inst || inst.meritRankCustomEnabled !== true) return [];
+    return Array.isArray(inst.meritRankTiebreaks) ? inst.meritRankTiebreaks : [];
+  }
+
+  function getMeritRankTieMode(inst) {
+    if (!inst || inst.meritRankCustomEnabled !== true) return 'roll';
+    return inst.meritRankTieMode === 'same' ? 'same' : 'roll';
+  }
+
+  let meritRankTiebreaksDraft = [];
+
+  const TIEBREAK_ORDINALS = ['১ম', '২য়', '৩য়', '৪র্থ', '৫ম', '৬ষ্ঠ', '৭ম', '৮ম', '৯ম', '১০ম'];
+
+  function renderMeritRankPage() {
+    if (!currentInstitute) return;
+    meritRankAlert.classList.add('d-none');
+    const customOn = currentInstitute.meritRankCustomEnabled === true;
+    meritRankCustomToggle.checked = customOn;
+    meritRankBasisSelect.value = currentInstitute.meritRankBasis || 'gpa';
+    meritRankTieModeSelect.value = currentInstitute.meritRankTieMode === 'same' ? 'same' : 'roll';
+    meritRankCustomFields.classList.toggle('d-none', !customOn);
+
+    meritRankTiebreaksDraft = Array.isArray(currentInstitute.meritRankTiebreaks)
+      ? currentInstitute.meritRankTiebreaks.map((rule) => ({
+          type: rule.type,
+          subjects: Array.isArray(rule.subjects) ? [...rule.subjects] : []
+        }))
+      : [];
+    renderTiebreakList();
+  }
+
+  function renderTiebreakList() {
+    meritRankTiebreakList.innerHTML = '';
+
+    meritRankTiebreaksDraft.forEach((rule, i) => {
+      const row = document.createElement('div');
+      row.className = 'tiebreak-row';
+      row.innerHTML = `
+        <div class="tiebreak-row-main">
+          <span class="tiebreak-order-badge">${TIEBREAK_ORDINALS[i] || `${i + 1}`}</span>
+          <div class="input-shell tiebreak-select-shell">
+            <select class="form-control custom-input custom-select tiebreak-type-select" data-index="${i}">
+              <option value="average" ${rule.type === 'average' ? 'selected' : ''}>গড় নম্বর</option>
+              <option value="totalMarks" ${rule.type === 'totalMarks' ? 'selected' : ''}>মোট নম্বর</option>
+              <option value="subject" ${rule.type === 'subject' ? 'selected' : ''}>বিষয়ের নাম</option>
+            </select>
+          </div>
+          <div class="tiebreak-row-actions">
+            <button type="button" class="row-action-btn" data-move-up="${i}" ${i === 0 ? 'disabled' : ''} aria-label="উপরে সরান">
+              <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="row-action-btn" data-move-down="${i}" ${i === meritRankTiebreaksDraft.length - 1 ? 'disabled' : ''} aria-label="নিচে সরান">
+              <i class="fa-solid fa-arrow-down" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="row-action-btn row-action-btn--delete" data-remove-tiebreak="${i}" aria-label="মুছে ফেলুন">
+              <i class="fa-solid fa-trash" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+        ${rule.type === 'subject' ? `
+          <div class="tiebreak-subject-adder">
+            <div class="input-shell" style="flex: 1;">
+              <input type="text" class="form-control custom-input tiebreak-subject-input" data-index="${i}" placeholder="বিষয়ের নাম লিখুন">
+            </div>
+            <button type="button" class="btn-cancel-edit tiebreak-subject-add-btn" data-index="${i}">যোগ করুন</button>
+          </div>
+          <div class="tag-list tiebreak-subject-tags">
+            ${(rule.subjects || []).length === 0
+              ? '<p class="tag-list-empty">এখনো কোনো বিষয় যুক্ত করা হয়নি।</p>'
+              : rule.subjects.map((s, si) => `
+                  <span class="tag-chip">
+                    ${escapeHtml(s)}
+                    <button type="button" class="tag-chip-remove" data-remove-subject="${i}:${si}" aria-label="মুছে ফেলুন">&times;</button>
+                  </span>
+                `).join('')}
+          </div>
+        ` : ''}
+      `;
+      meritRankTiebreakList.appendChild(row);
+    });
+
+    meritRankTiebreakList.querySelectorAll('.tiebreak-type-select').forEach((sel) => {
+      sel.addEventListener('change', () => {
+        const i = Number(sel.dataset.index);
+        meritRankTiebreaksDraft[i].type = sel.value;
+        if (sel.value !== 'subject') {
+          meritRankTiebreaksDraft[i].subjects = [];
+        }
+        renderTiebreakList();
+      });
+    });
+
+    meritRankTiebreakList.querySelectorAll('[data-move-up]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const i = Number(btn.dataset.moveUp);
+        if (i <= 0) return;
+        [meritRankTiebreaksDraft[i - 1], meritRankTiebreaksDraft[i]] = [meritRankTiebreaksDraft[i], meritRankTiebreaksDraft[i - 1]];
+        renderTiebreakList();
+      });
+    });
+
+    meritRankTiebreakList.querySelectorAll('[data-move-down]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const i = Number(btn.dataset.moveDown);
+        if (i >= meritRankTiebreaksDraft.length - 1) return;
+        [meritRankTiebreaksDraft[i + 1], meritRankTiebreaksDraft[i]] = [meritRankTiebreaksDraft[i], meritRankTiebreaksDraft[i + 1]];
+        renderTiebreakList();
+      });
+    });
+
+    meritRankTiebreakList.querySelectorAll('[data-remove-tiebreak]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const i = Number(btn.dataset.removeTiebreak);
+        meritRankTiebreaksDraft.splice(i, 1);
+        renderTiebreakList();
+      });
+    });
+
+    meritRankTiebreakList.querySelectorAll('.tiebreak-subject-add-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const i = Number(btn.dataset.index);
+        const input = meritRankTiebreakList.querySelector(`.tiebreak-subject-input[data-index="${i}"]`);
+        const name = (input.value || '').trim();
+        if (!name) return;
+        if (!meritRankTiebreaksDraft[i].subjects) meritRankTiebreaksDraft[i].subjects = [];
+        if (!meritRankTiebreaksDraft[i].subjects.includes(name)) {
+          meritRankTiebreaksDraft[i].subjects.push(name);
+        }
+        renderTiebreakList();
+      });
+    });
+
+    meritRankTiebreakList.querySelectorAll('[data-remove-subject]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const [i, si] = btn.dataset.removeSubject.split(':').map(Number);
+        meritRankTiebreaksDraft[i].subjects.splice(si, 1);
+        renderTiebreakList();
+      });
+    });
+  }
+
+  if (meritRankAddTiebreakBtn) {
+    meritRankAddTiebreakBtn.addEventListener('click', () => {
+      meritRankTiebreaksDraft.push({ type: 'average', subjects: [] });
+      renderTiebreakList();
+    });
+  }
+
+  if (meritRankCustomToggle) {
+    meritRankCustomToggle.addEventListener('change', () => {
+      meritRankCustomFields.classList.toggle('d-none', !meritRankCustomToggle.checked);
+    });
+  }
+
+  if (meritRankSaveBtn) {
+    meritRankSaveBtn.addEventListener('click', async () => {
+      meritRankAlert.classList.add('d-none');
+      meritRankSaveBtn.disabled = true;
+      try {
+        const customEnabled = meritRankCustomToggle.checked;
+        const basis = meritRankBasisSelect.value;
+        const tieMode = meritRankTieModeSelect.value === 'same' ? 'same' : 'roll';
+        const tiebreaks = meritRankTiebreaksDraft.map((rule) => ({
+          type: rule.type,
+          subjects: rule.type === 'subject' ? (rule.subjects || []) : []
+        }));
+        await updateDoc(doc(db, 'institutes', currentInstitute.key), {
+          meritRankCustomEnabled: customEnabled,
+          meritRankBasis: basis,
+          meritRankTiebreaks: tiebreaks,
+          meritRankTieMode: tieMode
+        });
+        currentInstitute = {
+          ...currentInstitute,
+          meritRankCustomEnabled: customEnabled,
+          meritRankBasis: basis,
+          meritRankTiebreaks: tiebreaks,
+          meritRankTieMode: tieMode
+        };
+        meritRankAlertText.textContent = 'মেধাক্রমের নিয়ম সফলভাবে সংরক্ষণ হয়েছে।';
+        meritRankAlert.classList.remove('d-none');
+      } catch (err) {
+        console.error('Save merit-rank rule failed:', err);
+        window.alert('মেধাক্রমের নিয়ম সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।');
+      } finally {
+        meritRankSaveBtn.disabled = false;
+      }
+    });
   }
 
   function lookupGrade(mark) {
@@ -7563,7 +8019,7 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
 
-        const rankMap = computeMeritRanks(rows);
+        const rankMap = computeMeritRanks(rows, getMeritRankBasis(currentInstitute), getMeritRankTiebreaks(currentInstitute), getMeritRankTieMode(currentInstitute));
         renderTranscript(match, rankMap.get(match));
       } catch (err) {
         console.error('Result search failed:', err);
@@ -8319,7 +8775,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         const rankEnabled = selectedBackupInstitute.meritRankEnabled !== false;
-        const rankMap = rankEnabled ? computeMeritRanks(rows) : null;
+        const rankMap = rankEnabled ? computeMeritRanks(rows, getMeritRankBasis(selectedBackupInstitute), getMeritRankTiebreaks(selectedBackupInstitute), getMeritRankTieMode(selectedBackupInstitute)) : null;
 
         const sheetRows = rows.map((r) => {
           const row = { 'রোল': r.roll, 'নাম': r.name };
@@ -9053,7 +9509,20 @@ document.addEventListener('DOMContentLoaded', () => {
      enough space, and mark text shrinks a step further only if
      even that isn't enough.
   --------------------------------------------------------- */
-  function computeTabColumnLayout(subjectCount, summaryCount) {
+  /* ---------------------------------------------------------
+     Measures rendered text width in CSS px using an offscreen
+     canvas, so column/row sizing on the tabulation sheet can be
+     based on the actual content (names, subject labels) instead
+     of a guessed fixed size.
+  --------------------------------------------------------- */
+  function measureTextWidth(text, font) {
+    if (!measureTextWidth._canvas) measureTextWidth._canvas = document.createElement('canvas');
+    const ctx = measureTextWidth._canvas.getContext('2d');
+    ctx.font = font;
+    return ctx.measureText(String(text || '')).width;
+  }
+
+  function computeTabColumnLayout(subjectCount, summaryCount, idealNameW, extraSubjectW) {
     // Fixed print geometry: A4 landscape (297mm) minus the 10mm
     // @page margin and the sheet's own 10mm/12mm padding on each
     // side — this is a constant, not something to measure.
@@ -9061,29 +9530,59 @@ document.addEventListener('DOMContentLoaded', () => {
     const ROLL_W = 34;
     const SUMMARY_W = 38; // each of মোট / জিপিএ / গ্রেড / (মেধা ক্রম, if enabled)
     const MIN_SUBJECT_W = 30;
-    const MAX_NAME_W = 190;
-    const MIN_NAME_W = 96;
+    // Subject headers are vertical now, so a column only needs to
+    // fit the mark itself (2-3 digits, or "অনু"/"হিফজ") — it no
+    // longer has to be wide enough to hold a horizontal subject
+    // name. Capping it here, instead of always stretching to fill
+    // the leftover width, is what actually makes columns narrower
+    // on screen — the freed-up space goes to the name column below.
+    // When at least one subject's header needs to wrap onto a
+    // second line, every subject column gets a little extra width
+    // (extraSubjectW) so that wrapped text has room to sit beside
+    // the first line instead of being squeezed.
+    const MAX_SUBJECT_W = 46 + (extraSubjectW || 0);
+    const MAX_NAME_W = 340;
+    const MIN_NAME_W = 80;
 
     const fixedW = ROLL_W + SUMMARY_W * summaryCount;
-    let nameW = MAX_NAME_W;
-    let subjectW = subjectCount > 0 ? (TABLE_WIDTH_PX - fixedW - nameW) / subjectCount : 0;
 
-    if (subjectCount > 0 && subjectW < MIN_SUBJECT_W) {
-      // Not enough room at the default name width — give the
-      // subjects priority and shrink the name column first.
-      const neededForSubjects = MIN_SUBJECT_W * subjectCount;
-      nameW = Math.max(MIN_NAME_W, TABLE_WIDTH_PX - fixedW - neededForSubjects);
+    // Name column width follows the longest actual student name on
+    // this sheet (measured in the caller and passed in), clamped to
+    // a sane range — instead of always claiming a fixed max width.
+    let nameW = idealNameW != null
+      ? Math.min(MAX_NAME_W, Math.max(MIN_NAME_W, idealNameW))
+      : 190;
+
+    let subjectW = MAX_SUBJECT_W;
+
+    if (subjectCount > 0) {
       subjectW = (TABLE_WIDTH_PX - fixedW - nameW) / subjectCount;
+
+      if (subjectW < MIN_SUBJECT_W) {
+        // Not enough room even at the minimum name width — give
+        // the subjects priority and shrink the name column first.
+        nameW = Math.max(MIN_NAME_W, TABLE_WIDTH_PX - fixedW - MIN_SUBJECT_W * subjectCount);
+        subjectW = (TABLE_WIDTH_PX - fixedW - nameW) / subjectCount;
+      }
+
+      // Never let a subject column grow past its comfortable cap,
+      // even when there's plenty of leftover room (few subjects) —
+      // hand that leftover back to the name column instead.
+      if (subjectW > MAX_SUBJECT_W) {
+        const extra = (subjectW - MAX_SUBJECT_W) * subjectCount;
+        nameW = Math.min(MAX_NAME_W, nameW + extra);
+        subjectW = MAX_SUBJECT_W;
+      }
     }
 
     // Even after giving up all the name-column room we can spare,
     // an extreme subject count could still land under the floor —
     // shrink the mark font a step so nowrap numbers still fit
     // rather than overflowing into neighbouring cells.
-    const markFontRem = subjectW < MIN_SUBJECT_W ? 0.68 : 0.86;
+    const markFontPx = subjectW < MIN_SUBJECT_W ? 10 : 12;
     subjectW = Math.max(20, subjectW);
 
-    return { rollW: ROLL_W, nameW, subjectW, summaryW: SUMMARY_W, markFontRem };
+    return { rollW: ROLL_W, nameW, subjectW, summaryW: SUMMARY_W, markFontPx };
   }
 
   function renderTabulationSheet({ session, className, examName, rows, subjects }) {
@@ -9109,11 +9608,42 @@ document.addEventListener('DOMContentLoaded', () => {
     const passRate = gradedTotal > 0 ? ((passCount / gradedTotal) * 100).toFixed(2) : '0.00';
     const absentCount = rows.length - gradedTotal;
 
-    const colLayout = computeTabColumnLayout(subjects.length, rankEnabled ? 4 : 3);
-    const markStyle = `font-size:${colLayout.markFontRem}rem;`;
-    const rankMap = computeMeritRanks(rows);
+    // নামের কলামের প্রস্থ এই শিটের শিক্ষার্থীদের নামের প্রকৃত দৈর্ঘ্য
+    // অনুযায়ী গণনা করা হয় — সবচেয়ে লম্বা নামটাই কলামের প্রস্থ ঠিক করে,
+    // যাতে ফাঁকা জায়গা বা কাটাছেঁড়া কোনোটাই না হয়।
+    const NAME_FONT = '400 12px "Noto Sans Bengali", "Poppins", sans-serif';
+    const idealNameW = rows.reduce((max, r) => Math.max(max, measureTextWidth(r.name, NAME_FONT)), 0) + 20;
 
-    const subjectHeadHtml = subjects.map((s) => `<th>${escapeHtml(s)}</th>`).join('');
+    // বিষয়ের হেডার এখন উল্লম্ব — একটা সহনীয় সর্বোচ্চ উচ্চতা (MAX_SINGLE_LINE_H)
+    // পর্যন্ত এক লাইনেই দেখায়। কোনো বিষয়ের নাম এর চেয়ে লম্বা হলে সেটা
+    // একটানা উঁচু না করে, বরং প্যারাগ্রাফের মতো একাধিক লাইনে wrap হবে —
+    // তার জন্য সেই কলামটুকু সামান্য চওড়া হতে দেওয়া হয়।
+    const HEADER_FONT = '600 12px "Noto Sans Bengali", "Poppins", sans-serif';
+    const MAX_SINGLE_LINE_H = 95;
+    const HEADER_PAD = 18;
+    const summaryLabels = ['মোট', 'জিপিএ', 'গ্রেড', 'মেধা ক্রম'];
+    const allHeaderLabels = [...subjects, ...summaryLabels];
+    const labelContentW = (label) => measureTextWidth(label, HEADER_FONT);
+
+    const headerH = Math.min(
+      MAX_SINGLE_LINE_H,
+      Math.max(...allHeaderLabels.map(labelContentW), 60)
+    ) + HEADER_PAD;
+    const headerStyle = `height:${Math.ceil(headerH)}px;`;
+
+    const wrapThreshold = MAX_SINGLE_LINE_H - HEADER_PAD;
+    const anySubjectWraps = subjects.some((s) => labelContentW(s) > wrapThreshold);
+
+    const colLayout = computeTabColumnLayout(subjects.length, rankEnabled ? 4 : 3, idealNameW, anySubjectWraps ? 22 : 0);
+    const markStyle = `font-size:${colLayout.markFontPx}px;`;
+    const rankMap = computeMeritRanks(rows, getMeritRankBasis(currentInstitute), getMeritRankTiebreaks(currentInstitute), getMeritRankTieMode(currentInstitute));
+
+    const buildVerticalTh = (label) => {
+      const wrapClass = labelContentW(label) > wrapThreshold ? ' tab-th-wrap' : '';
+      return `<th class="tab-th-vertical${wrapClass}" style="${headerStyle}">${escapeHtml(label)}</th>`;
+    };
+
+    const subjectHeadHtml = subjects.map(buildVerticalTh).join('');
 
     const rowHtml = (r) => {
       const cells = subjects.map((s) => {
@@ -9126,10 +9656,10 @@ document.addEventListener('DOMContentLoaded', () => {
           <td>${escapeHtml(r.roll)}</td>
           <td class="tab-cell-name">${escapeHtml(r.name)}</td>
           ${cells}
-          <td>${escapeHtml(r.totalMarks)}</td>
-          <td>${escapeHtml(isAbsentValue(r.grade) ? ABSENT_MARK : Number(r.gpa).toFixed(2))}</td>
-          <td>${escapeHtml(r.grade)}</td>
-          ${rankEnabled ? `<td>${escapeHtml(rank != null ? rank : '-')}</td>` : ''}
+          <td class="tab-cell-summary">${escapeHtml(r.totalMarks)}</td>
+          <td class="tab-cell-summary">${escapeHtml(isAbsentValue(r.grade) ? ABSENT_MARK : Number(r.gpa).toFixed(2))}</td>
+          <td class="tab-cell-summary">${escapeHtml(r.grade)}</td>
+          ${rankEnabled ? `<td class="tab-cell-summary">${escapeHtml(rank != null ? rank : '-')}</td>` : ''}
         </tr>
       `;
     };
@@ -9188,10 +9718,10 @@ document.addEventListener('DOMContentLoaded', () => {
           <th>রোল</th>
           <th>নাম</th>
           ${subjectHeadHtml}
-          <th>মোট</th>
-          <th>জিপিএ</th>
-          <th>গ্রেড</th>
-          ${rankEnabled ? '<th>মেধা ক্রম</th>' : ''}
+          ${buildVerticalTh('মোট')}
+          ${buildVerticalTh('জিপিএ')}
+          ${buildVerticalTh('গ্রেড')}
+          ${rankEnabled ? buildVerticalTh('মেধা ক্রম') : ''}
         </tr>
       </thead>
     `;
@@ -9262,8 +9792,14 @@ document.addEventListener('DOMContentLoaded', () => {
      reading once the per-row height is known.
   --------------------------------------------------------- */
   function measureTabSheetPageCapacity({ instName, examName, className, session, summaryHtml, colgroupHtml, theadHtml, sampleRow, rowHtml }) {
-    // 210mm A4-landscape - 2×10mm @page margin - 2×10mm page padding - 4mm safety buffer
-    const PAGE_CONTENT_HEIGHT_MM = 166;
+    // In print, .tab-sheet-page itself has NO padding — the print
+    // stylesheet zeroes it out (padding:0 !important) because the
+    // @page rule's own 10mm margin already frames the page, and
+    // stacking both would double the margin and push content onto
+    // a spurious extra sheet. So the full printable height (210mm
+    // page - 2×10mm @page margin = 190mm) is available to content,
+    // minus only a small safety buffer for measurement rounding.
+    const PAGE_CONTENT_HEIGHT_MM = 187;
     const budgetPx = PAGE_CONTENT_HEIGHT_MM * (96 / 25.4);
 
 
@@ -9283,10 +9819,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // wrapper's fixed 297mm), not the viewport. min-height:0 still
     // has to override .tab-sheet-page's real-page min-height:210mm
     // directly, or every reading below would come back identical
-    // (pinned to 210mm) regardless of actual content.
+    // (pinned to 210mm) regardless of actual content. padding:0
+    // mirrors the print stylesheet (see above) rather than the
+    // on-screen preview's 10mm/12mm padding, so the measured budget
+    // matches what printing actually gives the content.
     wrapper.style.cssText = 'position:absolute; left:-99999px; top:0; width:297mm; visibility:hidden;';
     const probe = document.createElement('div');
-    probe.style.cssText = 'width:100%; min-height:0 !important; box-sizing:border-box; padding:10mm 12mm;';
+    probe.style.cssText = 'width:100%; min-height:0 !important; box-sizing:border-box; padding:0;';
     probe.className = 'tab-sheet-page';
     wrapper.appendChild(probe);
     document.body.appendChild(wrapper);
